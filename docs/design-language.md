@@ -22,8 +22,6 @@ Named for real PCB/fab materials. Defined once in `globals.css` `@theme` as `--c
 | `--color-solder`       | Solder Mask      | `#103A33`  | Structural hairlines, dividers, inactive borders. A deep desaturated teal-green — a knowing nod, demoted to a minor structural role (never a glow, never a fill). |
 | `--color-silk`         | Silkscreen       | `#ECECE4`  | Primary text. Warm off-white, like component silkscreen. Never pure `#FFF`. |
 | `--color-ghost`        | Ghost            | `#8A8D98`  | Secondary text, muted labels, de-energized/past items. |
-| `--color-logo-purple`  | Logo Purple      | `#551081`  | Reflective accent sampled from `assets/circle.png`. Use only for the logo's own drop-shadow/glow on the `/about` hero. Never as a fill, text colour, or background anywhere on the site. |
-| `--color-logo-yellow`  | Logo Yellow      | `#FFDA03`  | Reflective accent sampled from `assets/circle.png` (UNSW yellow). Echoes `--color-gold`; may appear at low opacity as a delicate logo-adjacent highlight. Same restriction: no fills, no text. |
 
 Derive tints with `color-mix(in oklch, …)` in CSS rather than adding new tokens. Contrast floor: body text on substrate must clear WCAG AA (silk/ghost both pass; verify any tint).
 
@@ -60,28 +58,6 @@ A custom cursor: a small ring with a centre dot styled as an oscilloscope probe 
 ## 0.2.7 Voice & copy rules
 
 Copy is design material (§6). Active voice; sentence case; plain verbs. Interface states speak in the interface's voice, optionally as machine comments: an empty events list reads `// signal idle — no upcoming events on the bus`; an error reads `// fetch failed — retrying`. Buttons say exactly what happens ("Open in Studio", "Get tickets", "Read the changelog"). Names describe what the user controls, never how the system is built.
-
-## 0.2.8 The society logo — `circle.png` placement & usage
-
-`assets/circle.png` is the **only image asset the society owns**. It is a circular lockup: deep purple (`#551081`) background, UNSW yellow (`#FFDA03`) artwork. Copy it to `public/images/circle.png` — never reference `assets/` from code.
-
-**Permitted placements (these five, no others without an explicit decision):**
-
-| Placement | Component | Size & treatment |
-|-----------|-----------|------------------|
-| Nav — far left | `Nav.tsx` | 32 px, `next/image`, links to `/`. No glow. |
-| Footer — left column | `Footer.tsx` | 40 px, beside the copyright line. |
-| `/about` hero | `app/about/page.tsx` | 80 px, centred above the primary heading. On hover/focus (pointer devices only, `prefers-reduced-motion: no-preference` only): `filter: drop-shadow(0 0 12px color-mix(in oklch, var(--color-logo-purple) 20%, transparent))` on the wrapper. |
-| Browser tab / PWA icons | `public/favicon.ico`, `public/icon.svg` | Generated from `circle.png`. The circle is already maskable. |
-| Open Graph image | `public/og/default-og.png` | Logo centred on a `--color-substrate`-filled 1200×630 canvas. Generate once, commit. |
-
-**Hard rules:**
-- Always `next/image` with `alt="CompEngSoc logo"`. Not `aria-hidden` — it is meaningful brand identity.
-- Never place the logo inside the WebGL canvas, as a shader texture, or as a page-level background/watermark/repeat.
-- Minimum rendered size: 28 px. Never scale below this.
-- Never invert, recolour, or apply CSS filters beyond the single drop-shadow above.
-- The `--color-logo-purple` drop-shadow is the only place either logo token appears as a visible effect. Do not use these tokens elsewhere.
-- The Nav logo must remain in a stacking layer above TraceSpine and all decorative SVG (Nav already satisfies this per §2.5 — do not regress it).
 
 ---
 

@@ -465,11 +465,9 @@ export function useShaderUniforms() {
 
 ### `src/lib/design-tokens.ts`
 ```ts
-// TS MIRROR of the @theme colours in globals.css (docs/design-language.md §0.2.1, docs/directory-guide.md §4.3).
+// TS MIRROR of the @theme colours in globals.css (CLAUDE.md §0.2.1, §4.3).
 // Shaders/canvas cannot read CSS vars, so these hex values must match globals.css EXACTLY.
 // If you change a colour here, change globals.css in the same commit.
-// NOTE: logoPurple and logoYellow are NOT passed as shader uniforms — they exist here only
-// so the token set is complete and can be used in CSS-layer effects (drop-shadows on the logo).
 export const tokens = {
   substrate: "#0A0B0F",
   copper: "#C77B45",
@@ -479,11 +477,6 @@ export const tokens = {
   solder: "#103A33",
   silk: "#ECECE4",
   ghost: "#8A8D98",
-  // Reflective accents from assets/circle.png (the society logo).
-  // Used ONLY for the logo drop-shadow on /about (see docs/design-language.md §0.2.8).
-  // Do NOT add these as shader uniforms — the logo never enters the WebGL layer.
-  logoPurple: "#551081",
-  logoYellow: "#FFDA03",
 } as const;
 ```
 
@@ -693,3 +686,9 @@ export interface EventCard {
 ## END OF PLAYBOOK
 
 Build order recap (from §0.1): **scaffold → tokens → Sanity schemas/client/queries → pages on mock data → swap to live Sanity → scroll system → hero canvas → transitions → a11y/perf pass.** The masterpiece layer goes on last, over a site that already works without it. When in doubt, satisfy the *goal* in §2, honour the separation law in §6, and cut anything that doesn't serve the fusion thesis in §0.3.
+
+---
+
+## Addendum — hosting on Cloudflare Workers (OpenNext)
+
+The `/api/revalidate/route.ts` code above (signature verification → `revalidateTag`/`revalidatePath`) is unchanged on Cloudflare — that's ordinary Next.js application code. What changes is the infrastructure those calls write to: on Vercel this just works; on Cloudflare Workers via `@opennextjs/cloudflare`, `revalidateTag` needs an R2-backed incremental cache plus a Durable Object-backed tag cache configured in `open-next.config.ts` and `wrangler.jsonc`. See `docs/deployment.md` §5.2 and §5.5 for the exact config and for the simpler time-based-only alternative that avoids this setup entirely.

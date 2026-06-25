@@ -16,5 +16,4 @@ Must hold:
 - `<Canvas>` caps `dpr={[1, 2]}`; never leave DPR uncapped.
 - Handle `webglcontextlost` (preventDefault + fallback to the static poster) — a black canvas on context loss is a bug, not an edge case.
 - Colours in shaders/canvas come from `src/lib/design-tokens.ts` (the TS mirror of the CSS `@theme` tokens) — never a hard-coded hex in a shader or `useMemo`. If you change a token, change it in both files in the same edit.
-- `logoPurple` and `logoYellow` exist in `design-tokens.ts` for completeness but are **never passed as shader uniforms** — the logo lives in the HTML layer, not the WebGL layer. Do not add them to `useShaderUniforms`.
 - These files hold **only** animation/3D/shader logic — no Sanity fetches, no copy strings, no business logic. Data arrives as props.

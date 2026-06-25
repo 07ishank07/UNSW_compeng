@@ -17,7 +17,6 @@ The masterpiece layer (canvas, shaders, Trace) goes on **last**, over a site tha
 ## Non-negotiables
 
 - **Mandatory CTA:** home hero "Learn more" button links to exactly `https://www.unsw.edu.au/engineering/study-with-us/study-areas/computer-engineering` (new tab, `rel="noopener noreferrer"`).
-- **Logo:** `assets/circle.png` is the only society image. Copy it to `public/images/circle.png`. Use it in exactly five places (Nav 32 px, Footer 40 px, `/about` hero 80 px, favicon, OG image) — see `docs/design-language.md` §0.2.8 for the full placement spec and what is forbidden.
 - `prefers-reduced-motion` respected everywhere — every GSAP timeline and shader animation has a static/instant branch.
 - Decorative canvas/SVG layers are `pointer-events: none` and never sit above a click target.
 - No secrets in client bundles — only `NEXT_PUBLIC_*` is public. Write token and revalidate secret are server-only (`import "server-only"`).
@@ -42,12 +41,12 @@ src/data/mocks/      offline dev payloads, shape-matched to GROQ results
 
 | Working on... | Read |
 |---|---|
-| Colours, type, the Trace/Substrate concept, logo placement, copy/voice | `docs/design-language.md` |
+| Colours, type, the Trace/Substrate concept, copy/voice | `docs/design-language.md` |
 | Route map, About copy, what each module should render | `docs/content-map.md` |
 | "Is this done?" — perf/a11y/build acceptance criteria | `docs/checklists.md` |
 | Sanity schemas, GROQ queries, roles | `docs/sanity-schema.md` (also auto-loaded as a rule, see below) |
 | Full directory tree + per-file purpose | `docs/directory-guide.md` |
-| Env vars, local runbook, Vercel + DNS + handover | `docs/deployment.md` |
+| Env vars, local runbook, Cloudflare (OpenNext) + DNS + handover | `docs/deployment.md` |
 | Comment style, separation-of-concerns law | `docs/clean-code.md` |
 | Complete shader/GSAP/R3F/webhook code to adapt | `docs/reference-implementations.md` |
 

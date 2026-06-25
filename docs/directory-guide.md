@@ -23,15 +23,15 @@ compengsoc/
 ├── .gitignore                     # Ignores .env.local, node_modules, .next, dist, .sanity, coverage, etc.
 ├── sanity.config.ts               # Studio config (defineConfig): plugins, schema, basePath "/studio". (§3.2)
 ├── sanity.cli.ts                  # Sanity CLI/deploy config (defineCliConfig): projectId, dataset, autoUpdates. (§3.3)
+├── open-next.config.ts            # Cloudflare adapter config: which cache/queue/tag-cache implementation to use. (docs/deployment.md §5.2)
+├── wrangler.jsonc                 # Worker config: name, compatibility flags, R2/Durable Object bindings, custom domain routing. (§5.2)
+├── .dev.vars                      # GIT-IGNORED. Local mirror of .env.local for `wrangler dev`/preview (Workers-runtime-only secrets surface).
 │
 ├── public/                        # Static assets served as-is at the web root. No build step. Keep it lean.
 │   ├── fonts/                     # Self-hosted variable/static font files (Clash Display, Switzer, JetBrains Mono).
 │   │   ├── ClashDisplay-Variable.woff2
 │   │   ├── Switzer-Variable.woff2
 │   │   └── JetBrainsMono-Regular.woff2
-│   ├── images/                    # Static image assets. Currently the only entry is the society logo.
-│   │   └── circle.png             # Society logo (source: assets/circle.png — copy here at project setup).
-│   │                              # See docs/design-language.md §0.2.8 for all placement & usage rules.
 │   ├── models/                    # glTF/GLB 3D assets (optional PCB/die model). Draco-compressed. Keep < a few hundred KB.
 │   │   └── die.glb
 │   ├── textures/                  # Texture maps for the substrate shader (noise, normal). Power-of-two, compressed.
@@ -39,9 +39,10 @@ compengsoc/
 │   ├── poster/                    # Static fallback images (e.g. die poster) shown when WebGL is unavailable.
 │   │   └── substrate-poster.webp
 │   ├── og/                        # Open Graph / social share images.
-│   │   └── default-og.png         # circle.png centred on substrate-coloured 1200×630. Generate once; commit.
-│   ├── favicon.ico                # Generated from circle.png (see docs/design-language.md §0.2.8).
-│   └── icon.svg                   # Maskable PWA icon derived from circle.png.
+│   │   └── default-og.png
+│   ├── favicon.ico
+│   ├── icon.svg                   # Maskable app icon (the CompEngSoc mark).
+│   └── _headers                   # Cloudflare edge cache rules for /_next/static/* (long-cache, immutable). (§5.2)
 │
 ├── scripts/
 │   └── seed.ts                    # One-off Node script: pushes data/mocks/* into a DEV dataset via a write token.

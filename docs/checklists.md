@@ -82,7 +82,7 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 
 **SUCCESS**
 - `next build` (Turbopack default) passes with **zero type errors** and zero ESLint errors; `tsc --noEmit` is clean.
-- `.env.local` is git-ignored; `.env.example` documents every variable; CI/Vercel has the same variables set.
+- `.env.local` is git-ignored; `.env.example` documents every variable; secrets are set via `wrangler secret put` and public values via `wrangler.jsonc` `vars` (see `docs/deployment.md` §5.4.2) — not a dashboard env-var UI.
 - The embedded `/studio` route builds and loads in production at `https://<domain>/studio`.
 - Lighthouse (mobile) ≥ 90 Performance / ≥ 95 Accessibility / ≥ 95 Best-Practices / ≥ 95 SEO on `/` and `/events`.
 
