@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import Nav from "@/components/ui/Nav";
 
 const clashDisplay = localFont({
   src: "../../public/fonts/ClashDisplay-Variable.woff2",
@@ -39,6 +40,7 @@ export default function RootLayout({
       className={`${clashDisplay.variable} ${switzer.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-substrate text-silk font-body">
+        <Nav />
         {children}
       </body>
     </html>
