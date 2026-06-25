@@ -1,26 +1,38 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Tape-out colour palette (docs/design-language.md §0.2.1). TS mirror lives at
+   src/lib/design-tokens.ts for shader/canvas code that can't read CSS vars —
+   change both files in the same commit if a value here changes. */
+@theme {
+  --color-substrate: #0a0b0f;
+  --color-copper: #c77b45;
+  --color-copper-bright: #e8a877;
+  --color-gold: #d9b36a;
+  --color-signal: #86e0d8;
+  --color-solder: #103a33;
+  --color-silk: #ecece4;
+  --color-ghost: #8a8d98;
+
+  /* Fluid type scale (docs/design-language.md §0.2.2). */
+  --text-display: clamp(2.5rem, 6vw, 5.5rem);
+  --text-display--line-height: 1.05;
+  --text-h2: clamp(1.75rem, 3vw, 2.75rem);
+  --text-h2--line-height: 1.15;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.6;
+  --text-mono-label: 0.8125rem;
+  --text-mono-label--letter-spacing: 0.04em;
 }
 
+/* Font tokens reference the CSS vars next/font/local sets on <html> in layout.tsx
+   (--font-clash-display / --font-switzer / --font-jetbrains-mono) — "inline" so
+   Tailwind doesn't also try to redeclare them as static :root values. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-clash-display);
+  --font-body: var(--font-switzer);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
 }
