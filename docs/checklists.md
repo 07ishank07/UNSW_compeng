@@ -7,31 +7,36 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 ## 2.1 Global performance & loading
 
 **SUCCESS**
-- First load JS for the public routes stays lean: the heavy 3D bundle (`three`, R3F, postprocessing) is **dynamically imported, `ssr: false`**, and is *not* in the shared chunk that gates first paint. Target initial route JS well under ~200 KB gzip excluding the lazy canvas chunk.
+- First load JS for the public routes stays lean: the **GSAP suite** (core + ScrollTrigger + DrawSVG + SplitText) is **lazy-loaded** (`loadGsap`, after hydration) and the decorative layers are `ssr:false` (`DecorLayer`), so neither gates first paint. Measured first-load (this build): **~194 KB gzip** on `/`, `/events`, `/sponsors`, `/team` (summed from each prerendered route's script set). There is no WebGL bundle anymore.
 - Largest Contentful Paint < 2.5s and Interaction-to-Next-Paint < 200ms on a mid-tier mobile (throttled) for `/`, `/events`, `/sponsors`.
 - The canvas/asset bundle (shaders, glTF, textures) finishes loading in **under ~1.5s** on a good connection, and shows a lightweight boot/skeleton until ready.
 - Fonts are self-hosted via `next/font/local` with `display: swap`; no layout shift on font load (CLS ≈ 0).
 - Images from Sanity go through `@sanity/image-url` with explicit width/quality and `next/image` (or Sanity CDN params); no full-resolution originals shipped.
 
 **FAILURE**
-- `three`/R3F appears in the initial shared bundle or blocks first paint.
+- The GSAP suite or the decorative layers appear in the initial shared bundle or block first paint. (There is no longer any `three`/R3F.)
 - Any route ships an un-optimised image or a non-`swap` font causing visible reflow.
 - The page is unresponsive (main thread blocked) during the hero boot sequence.
 
-## 2.2 Canvas / WebGL (the Substrate hero)
+## 2.2 Layered-2D depth (the Gate hero + DepthField)
+
+> The hero/depth system is CSS/SVG, not WebGL (§0.2.4). These criteria replace the retired WebGL ones.
 
 **SUCCESS**
-- Maintains **~60 FPS** on a mid-tier laptop and degrades gracefully (lower DPR / paused ambient motion) on weak GPUs via adaptive DPR.
-- `<Canvas>` uses capped `dpr={[1, 2]}`, an appropriate `frameloop` (`'demand'` where the scene is static between interactions, otherwise capped), and `<Preload all />`.
-- **WebGL context loss is handled**: a `webglcontextlost` listener prevents default and a `webglcontextrestored` path re-initialises; if WebGL is unavailable, a static poster image of the die is rendered instead and the page is fully usable.
-- The canvas mounts only on routes that need it and **fully disposes** geometries, materials, textures, and render targets on unmount (no climbing memory across route changes).
-- Under `prefers-reduced-motion`, ambient shader animation is frozen to a steady frame; no boot animation runs.
+- Maintains **~60 FPS** during parallax / reveal / scroll on a mid-tier device: only `transform`/`opacity` (plus cheap `background`/`filter`) animate, staying on the compositor — no layout/paint thrash.
+- The pointer-parallax channel (`usePointerParallax`) is **rAF-throttled** (≤ one CSS-var write per frame, never per raw event), **disabled on touch and under reduced motion**, and degrades to static on weak devices (`navigator.hardwareConcurrency < 4` → `data-perf="lite"`).
+- **No idle loops:** the only `requestAnimationFrame` in the codebase is the pointer channel; it is scheduled solely on movement and cancelled on `visibilitychange` (hidden tab). Scroll-driven motion is GSAP ScrollTrigger, which only updates in range. Nothing animates off-screen or in a background tab.
+- No raw pixel-buffer rendering exists (no `<canvas>`/WebGL), so there is **no device-pixel-ratio surface to cap** — the compositor renders at native resolution. (The old `dpr={[1,2]}` cap is N/A.)
+- Every decorative/background layer extends the **full document height** (`useDocumentHeight` → `scrollHeight`) and stays consistent to the footer; nothing reverts or blanks partway down a long page.
+- GSAP (core + ScrollTrigger + DrawSVG + SplitText) is **lazy-loaded** (`loadGsap`, after hydration) and decorative layers are `ssr:false` (`DecorLayer`), so neither is in first-load JS.
+- Under `prefers-reduced-motion`, all motion is replaced by a static/instant state (parallax off, breathing off, glitch off, reveals instant, the Trace already fully drawn).
 
 **FAILURE**
-- Memory grows on every navigation to/from `/` (leaked GL resources or un-cancelled RAF/ticker).
-- Unhandled context-loss leaves a blank/black canvas with no fallback.
-- The shader runs an animation loop while the hero is off-screen or the tab is hidden.
-- DPR is uncapped (renders at full retina on a 3×/4× display and tanks FPS).
+- Any animation loop runs while its element is off-screen or the tab is hidden.
+- Pointer parallax updates on every raw `pointermove` instead of rAF-throttled, or runs on touch devices.
+- A decorative layer is viewport-fixed (collapsing the coordinate space) or stops partway down a long page.
+- Any motion ignores `prefers-reduced-motion`.
+- The GSAP suite or the decorative layers land in the eager first-load bundle / block first paint.
 
 ## 2.3 Scroll & motion (Trace spine, reveals, transitions)
 

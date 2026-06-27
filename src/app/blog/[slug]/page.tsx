@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import type { Metadata } from "next";
 import { getPostBySlug, getPostStaticParams } from "@/lib/content";
 import PostBody from "@/components/modules/PostBody";

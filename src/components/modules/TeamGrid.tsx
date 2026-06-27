@@ -8,7 +8,7 @@ export default function TeamGrid({ members }: Props) {
     return (
       <div className="px-6 py-10">
         <p className="font-mono text-mono-label tracking-[0.04em] text-ghost">
-          // board unpopulated — no exec members found
+          {"// board unpopulated — no exec members found"}
         </p>
       </div>
     );

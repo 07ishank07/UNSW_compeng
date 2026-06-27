@@ -4,7 +4,7 @@
 
 ## 4.1 Tech stack (locked)
 
-Next.js 16 (App Router, Turbopack default) · React 19 · TypeScript · TailwindCSS v4 (CSS-first `@theme`) · GSAP 3.13+ (+ ScrollTrigger, DrawSVG, SplitText, CustomEase) via `@gsap/react` · Lenis · Three.js + `@react-three/fiber` + `@react-three/drei` + `@react-three/postprocessing` · `next-sanity` + `@sanity/client` + `@sanity/image-url` + `@portabletext/react` · Zod (boundary validation) · ESLint + Prettier.
+Next.js 16 (App Router, Turbopack default) · React 19 · TypeScript · TailwindCSS v4 (CSS-first `@theme`) · GSAP 3.13+ (ScrollTrigger, DrawSVG, SplitText, CustomEase) — **lazy-loaded via `components/motion/loadGsap.ts`** · Lenis · `next-sanity` + `@sanity/client` + `@sanity/image-url` + `@portabletext/react` · Zod (boundary validation) · ESLint + Prettier. **Hero/depth is layered 2D (CSS/SVG) — Three.js/R3F/postprocessing were removed in the visual-revision pass; `components/canvas/*` and `shaders/*` no longer exist (now `components/depth/*`).**
 
 ## 4.2 The tree
 

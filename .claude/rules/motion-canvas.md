@@ -1,19 +1,18 @@
 ---
 paths:
-  - "src/components/canvas/**"
+  - "src/components/depth/**"
   - "src/components/motion/**"
-  - "src/shaders/**"
-  - "src/components/cursor/**"
+  - "src/hooks/**"
 ---
 
-# Working in canvas / motion / shaders
+# Working in depth / motion
 
-Complete, adapt-ready code for the shader, the Trace, the R3F Scene wrapper, and the revalidate route is in `docs/reference-implementations.md` — read it before writing new canvas/motion code so you match the established patterns (uniform naming, cleanup pattern, reduced-motion branch) instead of inventing a new one.
+The hero and site-wide depth are **layered 2D (CSS/SVG)** — no WebGL/Three.js/shaders (those were removed; old code is in `docs/reference-implementations.md` for history only). Match the patterns already in `components/depth/*` and `components/motion/*` instead of inventing new ones.
 
 Must hold:
-- Every GSAP timeline is created inside `useGSAP()` (scope to a container ref) so it reverts on unmount. Bare `gsap.to`/`ScrollTrigger.create` outside that hook is a leak.
-- Every animation/shader has a `prefers-reduced-motion` branch that is static or instant, not just "slower."
-- `<Canvas>` caps `dpr={[1, 2]}`; never leave DPR uncapped.
-- Handle `webglcontextlost` (preventDefault + fallback to the static poster) — a black canvas on context loss is a bug, not an edge case.
-- Colours in shaders/canvas come from `src/lib/design-tokens.ts` (the TS mirror of the CSS `@theme` tokens) — never a hard-coded hex in a shader or `useMemo`. If you change a token, change it in both files in the same edit.
-- These files hold **only** animation/3D/shader logic — no Sanity fetches, no copy strings, no business logic. Data arrives as props.
+- **GSAP is lazy-loaded.** Never `import { gsap } from "gsap"` (or a plugin) at module top in a component — that puts ~70 KB in first-load JS. Call `loadGsap()` (`src/components/motion/loadGsap.ts`) inside the effect, then create timelines/ScrollTriggers inside `gsap.context(fn, ref)` and call `ctx.revert()` in the effect cleanup so everything reverts on unmount. (This replaced the eager `useGSAP`/`registerGsap` pattern.)
+- Every animation has a `prefers-reduced-motion` branch that is **static/instant**, not just "slower." Read it via `usePrefersReducedMotion()`.
+- Depth/"pop" is CSS only: animate `transform`/`opacity` (compositor-friendly). Pointer parallax goes through the global `--mx`/`--my` channel written by `usePointerParallax` (rAF-throttled, gated off on touch / reduced-motion / `hardwareConcurrency < 4`). The **only** `requestAnimationFrame` in the app is that hook; it cancels on `visibilitychange`. Don't add idle loops.
+- Decorative full-page layers size to `useDocumentHeight()` (document `scrollHeight`), `position: absolute; top: 0` — **never `fixed`/viewport** (that collapses the coordinate space; it was a real bug). They are `aria-hidden`, `pointer-events: none`, sit behind content (`-z-*`), and are deferred `ssr:false` via `DecorLayer`.
+- Colours come from CSS tokens (`var(--color-*)`) or `src/lib/design-tokens.ts` — never a hard-coded hex. Motion timings come from `src/lib/easing.ts` and its CSS mirrors in `globals.css` (`--ease-energize`, `--dur-fast/base/slow`) — keep the two in sync.
+- These files hold **only** animation / markup / scoped component CSS — no Sanity fetches, no copy strings, no business logic. Data arrives as props.

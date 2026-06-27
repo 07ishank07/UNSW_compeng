@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getUpcomingEvents, getPastEvents } from "@/lib/content";
 import EventsTimeline from "@/components/modules/EventsTimeline";
 import PageHeader from "@/components/ui/PageHeader";
+import { Reveal } from "@/components/motion/Reveal";
 
 export const metadata: Metadata = {
   title: "Events — CompEngSoc",
@@ -21,7 +22,9 @@ export default async function EventsPage() {
         title="Events"
         subtitle="Hands-on workshops, industry nights, and the social events that make CompEng feel like a community."
       />
-      <EventsTimeline upcoming={upcoming} past={past} />
+      <Reveal>
+        <EventsTimeline upcoming={upcoming} past={past} />
+      </Reveal>
     </main>
   );
 }

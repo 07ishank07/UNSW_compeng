@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getPosts } from "@/lib/content";
 import PostsList from "@/components/modules/PostsList";
 import PageHeader from "@/components/ui/PageHeader";
+import { Reveal } from "@/components/motion/Reveal";
 
 export const metadata: Metadata = {
   title: "Blog — CompEngSoc",
@@ -18,7 +19,9 @@ export default async function BlogPage() {
         title="Blog"
         subtitle="Announcements, event recaps, and technical writing from CompEngSoc."
       />
-      <PostsList posts={posts} />
+      <Reveal>
+        <PostsList posts={posts} />
+      </Reveal>
     </main>
   );
 }

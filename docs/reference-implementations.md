@@ -2,6 +2,12 @@
 
 # §A — REFERENCE IMPLEMENTATIONS
 
+> **⚠ Partly superseded (visual-revision pass).** The WebGL hero (§A.1 Substrate shader, §A.3 R3F `<Canvas>` wrapper) and the `registerGsap`/`useGSAP` pattern were **removed**. Current direction:
+> - Hero + site-wide depth are **layered 2D (CSS/SVG)** — `src/components/depth/{HeroGate,DepthField,DecorLayer}.tsx`. No `three`/R3F/postprocessing.
+> - GSAP is **lazy-loaded** via `src/components/motion/loadGsap.ts` (then `gsap.context(fn, ref)` + `ctx.revert()`), not eager `registerGsap` + `useGSAP`.
+> - The Trace is `src/components/motion/TraceWire.tsx` (px-accurate, gutter-routed).
+> The WebGL/GSAP-registration code below is kept for **history/reference only** — do not reintroduce it.
+
 Complete, real code for the load-bearing pieces the sections above reference. No placeholders. Adapt names/paths to match §4, and re-verify any API against the installed versions (§0.1).
 
 ## §A.0 Motion vocabulary + GSAP registration

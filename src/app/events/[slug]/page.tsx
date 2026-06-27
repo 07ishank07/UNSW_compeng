@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import type { Metadata } from "next";
 import { getEventBySlug, getEventStaticParams } from "@/lib/content";
 import PageHeader from "@/components/ui/PageHeader";
@@ -84,7 +84,7 @@ export default async function EventDetailPage({
 
         {!event.body && (
           <p className="font-mono text-mono-label tracking-[0.04em] text-ghost">
-            // full details published closer to the date
+            {"// full details published closer to the date"}
           </p>
         )}
 

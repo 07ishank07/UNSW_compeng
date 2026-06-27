@@ -8,7 +8,7 @@ export default function PostsList({ posts }: Props) {
     return (
       <div className="px-6 py-10">
         <p className="font-mono text-mono-label tracking-[0.04em] text-ghost">
-          // signal idle — changelog empty
+          {"// signal idle — changelog empty"}
         </p>
       </div>
     );

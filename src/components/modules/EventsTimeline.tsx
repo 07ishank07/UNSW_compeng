@@ -15,7 +15,7 @@ export default function EventsTimeline({ upcoming, past }: Props) {
         </h2>
         {upcoming.length === 0 ? (
           <p className="font-mono text-mono-label tracking-[0.04em] text-ghost">
-            // signal idle — no upcoming events on the bus
+            {"// signal idle — no upcoming events on the bus"}
           </p>
         ) : (
           <ul

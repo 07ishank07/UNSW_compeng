@@ -1,3 +1,5 @@
+import { SplitHeadline } from "@/components/motion/SplitHeadline";
+
 type Props = {
   label: string;
   title: string;
@@ -10,7 +12,9 @@ export default function PageHeader({ label, title, subtitle }: Props) {
       <p className="font-mono text-mono-label uppercase tracking-[0.04em] text-ghost mb-3">
         {label}
       </p>
-      <h1 className="font-display text-h2 text-silk">{title}</h1>
+      <SplitHeadline as="h1" weight={[400, 560]} className="font-display text-h2 text-silk">
+        {title}
+      </SplitHeadline>
       {subtitle && (
         <p className="text-body text-ghost mt-3 max-w-2xl">{subtitle}</p>
       )}

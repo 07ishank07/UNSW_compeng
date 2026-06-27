@@ -19,6 +19,8 @@
 
 ## 1.1 Home page — the visual masterpiece (spec, not loose direction)
 
+> **Superseded by the visual-revision pass:** the hero is no longer a WebGL `<Canvas>`/shader "Substrate." It is now the layered-2D **"Gate"** (`src/components/depth/HeroGate.tsx`, see `docs/design-language.md` §0.2.4): stacked CSS/SVG layers (glow, board card, plate, logo mark, sheen, scanlines) with rAF-throttled pointer parallax, an energize+glitch on scroll, and a `SplitText` weight-morph wordmark reveal. The boot-sequence/probe-cursor notes below are aspirational/historical; the CTA + wordmark + mono-subtitle copy still hold.
+
 **Above the fold — "The Substrate":**
 - Full-viewport R3F `<Canvas>` rendering the procedural silicon-die shader (§A.1). Behind it, `--color-substrate`.
 - Boot sequence on first paint (≤ ~1.2s): rails charge → die powers → wordmark resolves silkscreen-outline → copper fill (SplitText/clip reveal on the display face). Skipped instantly under reduced motion (die shown in steady state, wordmark already filled).

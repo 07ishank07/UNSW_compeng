@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import type { PastEvent, UpcomingEvent } from "@/lib/types";
 
 type Props = {
@@ -35,9 +35,9 @@ export default function EventCard({ event, variant }: Props) {
   return (
     <Link
       href={`/events/${event.slug}`}
-      className={`block border p-5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold ${
+      className={`group block border p-5 lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold ${
         isUpcoming
-          ? "border-copper hover:border-copper-bright"
+          ? "border-copper hover:border-copper-bright hover:shadow-[0_0_28px_color-mix(in_srgb,var(--color-purple)_24%,transparent)]"
           : "border-solder hover:border-copper/40"
       }`}
     >
@@ -51,7 +51,7 @@ export default function EventCard({ event, variant }: Props) {
             event.eventType.toUpperCase()}
         </span>
         {isUpcoming && (
-          <span className="font-mono text-mono-label uppercase tracking-[0.04em] text-signal">
+          <span className="font-mono text-mono-label uppercase tracking-[0.04em] text-gold-bright [text-shadow:0_0_8px_color-mix(in_srgb,var(--color-purple)_80%,transparent)]">
             ● LIVE
           </span>
         )}
@@ -77,7 +77,7 @@ export default function EventCard({ event, variant }: Props) {
         </p>
       )}
       {ticketUrl && (
-        <span className="inline-block font-mono text-mono-label uppercase tracking-[0.04em] text-gold border border-gold px-3 py-1">
+        <span className="inline-block font-mono text-mono-label uppercase tracking-[0.04em] text-gold border border-gold px-3 py-1 transition-colors group-hover:bg-gold-bright group-hover:border-gold-bright group-hover:text-substrate">
           Get Tickets →
         </span>
       )}

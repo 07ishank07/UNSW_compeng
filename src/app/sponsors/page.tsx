@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getSponsors } from "@/lib/content";
 import SponsorsGrid from "@/components/modules/SponsorsGrid";
 import PageHeader from "@/components/ui/PageHeader";
+import { Reveal } from "@/components/motion/Reveal";
 
 export const metadata: Metadata = {
   title: "Sponsors — CompEngSoc",
@@ -18,7 +19,9 @@ export default async function SponsorsPage() {
         title="Sponsors"
         subtitle="The organisations that power our workshops, events, and student programs."
       />
-      <SponsorsGrid sponsors={sponsors} />
+      <Reveal>
+        <SponsorsGrid sponsors={sponsors} />
+      </Reveal>
     </main>
   );
 }

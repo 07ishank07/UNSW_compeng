@@ -7,7 +7,7 @@ export default function PostBody({ body }: Props) {
   if (!body || body.length === 0) {
     return (
       <p className="font-mono text-mono-label tracking-[0.04em] text-ghost">
-        // body not available in mock mode
+        {"// body not available in mock mode"}
       </p>
     );
   }

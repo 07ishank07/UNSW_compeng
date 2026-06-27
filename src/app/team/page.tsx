@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getExec } from "@/lib/content";
 import TeamGrid from "@/components/modules/TeamGrid";
 import PageHeader from "@/components/ui/PageHeader";
+import { Reveal } from "@/components/motion/Reveal";
 
 export const metadata: Metadata = {
   title: "Team — CompEngSoc",
@@ -18,7 +19,9 @@ export default async function TeamPage() {
         title="Team"
         subtitle="The founding exec building CompEngSoc from the ground up."
       />
-      <TeamGrid members={members} />
+      <Reveal>
+        <TeamGrid members={members} />
+      </Reveal>
     </main>
   );
 }

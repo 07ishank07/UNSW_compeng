@@ -4,15 +4,17 @@ This file loads on every turn. Keep it lean. Deep reference material lives in `d
 
 ## What this is
 
-A masterpiece-grade site for UNSW's newly founded **Computer Engineering Society**. Thesis: software logic rendered as hardware — a copper "Trace" bus threads the page; the hero is a live WebGL silicon die ("the Substrate"). Content (events, sponsors, exec, academics, blog) is headless via **Sanity.io**, edited at `/studio`. **No custom auth/DB/booking.**
+A masterpiece-grade site for UNSW's newly founded **Computer Engineering Society**. Thesis: software logic rendered as hardware — a copper "Trace" bus threads the page; the hero is the society's logic-gate mark rendered as layered, shaded 2D ("the Gate"). Content (events, sponsors, exec, academics, blog) is headless via **Sanity.io**, edited at `/studio`. **No custom auth/DB/booking.**
 
-Stack: Next.js 16 (App Router, Turbopack default, `params`/`searchParams` are Promises — `await` them) · React 19 · Tailwind v4 (`@theme` in `globals.css`, no `tailwind.config.js`) · GSAP 3.13+ (free, incl. ScrollTrigger/DrawSVG/SplitText) + `@gsap/react` · Lenis · Three.js + R3F · `next-sanity`. Re-verify majors with `npm show <pkg> version` before assuming.
+> **Visual-revision note (current direction):** the hero and site-wide depth are **layered 2D (CSS/SVG + transforms/blur/shadow)** — the WebGL/Three.js/R3F approach was removed. See `docs/design-language.md` §0.2.4 and `.claude/rules/motion-canvas.md`.
+
+Stack: Next.js 16 (App Router, Turbopack default, `params`/`searchParams` are Promises — `await` them) · React 19 · Tailwind v4 (`@theme` in `globals.css`, no `tailwind.config.js`) · GSAP 3.13+ (free, incl. ScrollTrigger/DrawSVG/SplitText; **lazy-loaded via `components/motion/loadGsap.ts`, never eager**) · Lenis · `next-sanity`. The hero/depth system is **layered 2D (CSS/SVG)** — no WebGL/Three.js. Re-verify majors with `npm show <pkg> version` before assuming.
 
 ## Build order (do not skip ahead)
 
-scaffold → design tokens (`globals.css`) → Sanity schemas/client/queries → pages wired to **mock data** (`NEXT_PUBLIC_USE_MOCKS=true`) → swap to live Sanity → GSAP/Lenis scroll system → R3F hero → page transitions → a11y/perf pass.
+scaffold → design tokens (`globals.css`) → Sanity schemas/client/queries → pages wired to **mock data** (`NEXT_PUBLIC_USE_MOCKS=true`) → swap to live Sanity → GSAP/Lenis scroll system → layered-2D hero (the Gate + DepthField) → page transitions → a11y/perf pass.
 
-The masterpiece layer (canvas, shaders, Trace) goes on **last**, over a site that already works without it.
+The masterpiece layer (the depth layers, the Gate, the Trace) goes on **last**, over a site that already works without it.
 
 ## Non-negotiables
 
@@ -21,19 +23,18 @@ The masterpiece layer (canvas, shaders, Trace) goes on **last**, over a site tha
 - Decorative canvas/SVG layers are `pointer-events: none` and never sit above a click target.
 - No secrets in client bundles — only `NEXT_PUBLIC_*` is public. Write token and revalidate secret are server-only (`import "server-only"`).
 - Restraint: the Trace + hero carry the artistry. Utility modules (events/sponsors/academics) stay calm and legible — don't animate every module.
-- One concern per file: data logic / markup / Tailwind styling / GSAP animation / GLSL shaders never share a file. Folder = concern (`components/canvas`, `components/motion`, `components/modules`, `components/ui`).
+- One concern per file: data logic / markup / Tailwind styling / GSAP animation never share a file (decorative leaf components may hold their own scoped `<style>`, as DepthField/HeroGate do). Folder = concern (`components/depth`, `components/motion`, `components/modules`, `components/ui`).
 
 ## Folder map
 
 ```
 src/app/            routes (Server Components by default; 'use client' only where needed)
 src/sanity/         schemas, client, queries, GROQ — never import into client components
-src/components/canvas/   R3F + shaders, 'use client', lazy-loaded (ssr:false)
-src/components/motion/   GSAP/Lenis only — no content, no data fetching
+src/components/depth/    layered-2D depth: DepthField, HeroGate, DecorLayer — 'use client', decorative, deferred via DecorLayer (ssr:false)
+src/components/motion/   GSAP/Lenis only (GSAP lazy-loaded via loadGsap.ts) — no content, no data fetching
 src/components/modules/  the data-shaped utility views (events, sponsors, academics...)
 src/components/ui/       structural primitives — always real, accessible, interactive
-src/shaders/         pure GLSL, no JS
-src/lib/             framework-agnostic utils incl. design-tokens.ts (TS mirror of CSS @theme)
+src/lib/             framework-agnostic utils incl. design-tokens.ts (TS mirror of CSS @theme), easing.ts
 src/data/mocks/      offline dev payloads, shape-matched to GROQ results
 ```
 

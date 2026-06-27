@@ -35,7 +35,7 @@ export default function AcademicsGrid({ resources }: Props) {
     return (
       <div className="px-6 py-10">
         <p className="font-mono text-mono-label tracking-[0.04em] text-ghost">
-          // memory map empty — no resources loaded
+          {"// memory map empty — no resources loaded"}
         </p>
       </div>
     );

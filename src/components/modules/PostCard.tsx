@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import type { Post } from "@/lib/types";
 
 type Props = { post: Post };
@@ -22,7 +22,7 @@ export default function PostCard({ post }: Props) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group block border-b border-solder py-6 hover:border-copper transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+      className="group block border-b border-solder py-6 hover:border-gold-bright lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
     >
       <div className="flex items-center gap-3 mb-2 flex-wrap">
         <span className="font-mono text-mono-label uppercase tracking-[0.04em] text-ghost">

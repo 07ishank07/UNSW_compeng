@@ -33,7 +33,7 @@ export default function AcademicCell({ resource }: Props) {
         href={href}
         target={isExternal ? "_blank" : undefined}
         rel={isExternal ? "noopener noreferrer" : undefined}
-        className="block border border-solder hover:border-copper p-4 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+        className="block border border-solder hover:border-copper hover:shadow-[0_0_20px_color-mix(in_srgb,var(--color-copper)_14%,transparent)] p-4 lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
       >
         {inner}
       </a>

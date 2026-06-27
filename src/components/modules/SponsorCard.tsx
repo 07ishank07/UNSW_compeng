@@ -8,7 +8,7 @@ export default function SponsorCard({ sponsor }: Props) {
       href={sponsor.website}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block border border-solder hover:border-copper p-6 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+      className="group block border border-solder hover:border-copper hover:shadow-[0_0_24px_color-mix(in_srgb,var(--color-copper)_16%,transparent)] p-6 lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
     >
       {/* Logo placeholder — replaced with next/image + urlForImage in live mode */}
       <div
