@@ -3,6 +3,7 @@ import { mockSponsors } from "@/data/mocks/sponsors";
 import { mockExec } from "@/data/mocks/exec";
 import { mockPosts } from "@/data/mocks/posts";
 import { mockAcademicResources } from "@/data/mocks/academicResources";
+import { mockSiteSettings } from "@/data/mocks/siteSettings";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import {
   upcomingEventsQuery,
@@ -13,6 +14,7 @@ import {
   postsQuery,
   postBySlugQuery,
   academicResourcesQuery,
+  siteSettingsQuery,
 } from "@/sanity/lib/queries";
 import type {
   AcademicResource,
@@ -22,6 +24,7 @@ import type {
   PastEvent,
   Post,
   PostDetail,
+  SiteSettings,
   Sponsor,
   UpcomingEvent,
 } from "@/lib/types";
@@ -123,5 +126,13 @@ export async function getAcademicResources(): Promise<AcademicResource[]> {
   return sanityFetch<AcademicResource[]>({
     query: academicResourcesQuery,
     tags: ["academicResource"],
+  });
+}
+
+export async function getSiteSettings(): Promise<SiteSettings | null> {
+  if (USE_MOCKS) return mockSiteSettings as SiteSettings;
+  return sanityFetch<SiteSettings | null>({
+    query: siteSettingsQuery,
+    tags: ["siteSettings"],
   });
 }

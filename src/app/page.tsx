@@ -1,10 +1,23 @@
 import { HeroGate } from "@/components/depth/HeroGate";
 import { SplitHeadline } from "@/components/motion/SplitHeadline";
+import { PeriodicGlitch } from "@/components/motion/PeriodicGlitch";
+import AboutSection from "@/components/modules/AboutSection";
+import InstagramCta from "@/components/modules/InstagramCta";
+import ContactSection from "@/components/modules/ContactSection";
+import { getSiteSettings } from "@/lib/content";
 
-export default function Home() {
+// TODO: ensure the Sanity siteSettings doc carries an `instagram` social so this
+// stays content-managed; the fallback is the canonical handle.
+const INSTAGRAM_FALLBACK = "https://www.instagram.com/unswcompengsoc/";
+
+export default async function Home() {
+  const settings = await getSiteSettings();
+  const instagramUrl =
+    settings?.socials?.find((s) => s.platform === "instagram")?.url ?? INSTAGRAM_FALLBACK;
+
   return (
     <main className="flex-1">
-      {/* Hero — full-viewport section with the live WebGL AND gate behind content. */}
+      {/* Hero — full-viewport section with the layered-2D Gate behind the content. */}
       <section className="relative min-h-[100svh] flex flex-col items-center justify-end overflow-hidden pb-16">
         {/*
           Decorative canvas: aria-hidden, pointer-events-none keeps it below click targets.
@@ -22,7 +35,7 @@ export default function Home() {
           <SplitHeadline
             as="h1"
             weight={[420, 600]}
-            className="font-display text-display text-silk leading-[1.05] tracking-tight [text-shadow:0_0_28px_color-mix(in_srgb,var(--color-purple)_55%,transparent),0_0_60px_color-mix(in_srgb,var(--color-purple)_30%,transparent)]"
+            className="js-glitch-text font-display text-display text-silk leading-[1.05] tracking-tight [text-shadow:0_0_28px_color-mix(in_srgb,var(--color-purple)_55%,transparent),0_0_60px_color-mix(in_srgb,var(--color-purple)_30%,transparent)]"
           >
             CompEngSoc
           </SplitHeadline>
@@ -52,7 +65,15 @@ export default function Home() {
             Learn more
           </a>
         </div>
+
+        {/* Ambient retro glitch on a randomised timer — punctuates the hero logo
+            mark + wordmark alongside the existing energize/reveal glitches. */}
+        <PeriodicGlitch />
       </section>
+
+      <AboutSection />
+      <InstagramCta url={instagramUrl} />
+      <ContactSection settings={settings} />
     </main>
   );
 }

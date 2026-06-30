@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "compengsoc",
+  // Pin to the date you actually deploy and re-verify against the installed
+  // workerd before relying on it (docs/deployment.md §5.2).
+  "compatibility_date": "2025-09-23",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" }
+  // Static + redeploy path (open-next.config.ts) needs no R2 / Durable Object
+  // bindings. Public NEXT_PUBLIC_* values go here under "vars"; secrets
+  // (SANITY_API_READ_TOKEN, SANITY_REVALIDATE_SECRET) via `wrangler secret put`.
+}

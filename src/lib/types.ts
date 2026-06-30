@@ -66,6 +66,18 @@ export type SocialLink = {
   url: string;
 };
 
+export type SiteSettings = {
+  tagline: string | null;
+  contactEmail: string | null;
+  socials: SocialLink[] | null;
+  newsletterUrl: string | null;
+  defaultSeo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    ogImage: null;
+  } | null;
+};
+
 export type ExecMember = {
   _id: string;
   name: string;

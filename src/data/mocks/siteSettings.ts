@@ -4,7 +4,7 @@ export const mockSiteSettings = {
   tagline: "Where silicon meets software.",
   contactEmail: "hello@compengsoc.com",
   socials: [
-    { platform: "instagram", url: "https://instagram.com/compengsoc" },
+    { platform: "instagram", url: "https://www.instagram.com/unswcompengsoc/" },
     { platform: "linkedin", url: "https://linkedin.com/company/compengsoc" },
     { platform: "discord", url: "https://discord.gg/compengsoc" },
   ],

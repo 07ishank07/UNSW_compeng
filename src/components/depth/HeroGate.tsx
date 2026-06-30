@@ -111,7 +111,7 @@ export function HeroGate() {
 
       {/* The brand mark — sharp, nearest, tilts toward the pointer */}
       <div className="depth-layer" style={depth(16)}>
-        <div ref={markRef} className="hg-mark relative h-[50vmin] w-[50vmin] max-h-[400px] max-w-[400px]">
+        <div ref={markRef} className="hg-mark js-glitch-img relative h-[50vmin] w-[50vmin] max-h-[400px] max-w-[400px]">
           <Image
             src="/brand/logo.png"
             alt=""

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, type ReactNode } from "react";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { lenisStore } from "@/lib/lenisStore";
 import { loadGsap } from "./loadGsap";
 
 /**
@@ -24,6 +25,9 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
 
       const lenis = new Lenis({ lerp: 0.15, wheelMultiplier: 1, smoothWheel: true, autoRaf: false });
+      // Expose the live instance so consumers (e.g. the mobile menu scroll lock)
+      // can stop/start it without creating a second instance.
+      lenisStore.set(lenis);
       if (process.env.NODE_ENV !== "production") {
         (window as unknown as { lenis?: unknown }).lenis = lenis;
       }
@@ -49,6 +53,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
 
       cleanup = () => {
         active = false;
+        lenisStore.set(null);
         window.removeEventListener("load", resize);
         ro.disconnect();
         gsap.ticker.remove(raf);
