@@ -15,6 +15,12 @@ export const pastEventsQuery = groq`
     _id, title, "slug": slug.current, eventType, startDateTime, location, "image": heroImage
   }`;
 
+// Home-page "Recent events" strip — recency, NOT the featured flag.
+export const recentPastEventsQuery = groq`
+  *[_type == "event" && startDateTime < now()] | order(startDateTime desc)[0...3]{
+    _id, title, "slug": slug.current, eventType, startDateTime, location, "image": heroImage
+  }`;
+
 export const featuredEventsQuery = groq`
   *[_type == "event" && featured == true && startDateTime >= now()]
     | order(startDateTime asc)[0...3]{

@@ -66,7 +66,7 @@
 Each standard club utility is fetched from Sanity and rendered as a recognised hardware subsystem. **Legibility and accessible interaction come first; the metaphor is the styling layer, never an obstacle.**
 
 ### 1.3.1 Events → "Signal Timeline"
-- Events render as nodes on a copper bus drawn as a **clock/waveform**. **Upcoming** events are *energized* (gold/signal, gently pulsing); **past** events are *de-energized* (dim copper/ghost). Status derives from `startDateTime` vs now (computed client-side), not a manual flag, so it can never go stale.
+- Events render as nodes on a copper bus drawn as a **clock/waveform**. **Upcoming** events are *energized* (gold, gently pulsing); **past** events are *de-energized* (dim copper/ghost). Status derives from `startDateTime` vs now (computed client-side), not a manual flag, so it can never go stale.
 - Each event's `eventType` (cruise, camp, workshop, networking, social, hackathon) maps to a "packet type" with a mono label and a small glyph.
 - The whole card is one large accessible click target → `/events/[slug]`. The waveform sits behind it (`pointer-events: none`).
 - **Hover/focus → a "datasheet" panel** slides in: date/time (mono), location, short description, and a "Get tickets" CTA (`ticketUrl`) when present. Keyboard-reachable; the panel content is also rendered on the detail page so nothing is hover-only.

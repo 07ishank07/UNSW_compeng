@@ -8,6 +8,7 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import {
   upcomingEventsQuery,
   pastEventsQuery,
+  recentPastEventsQuery,
   eventBySlugQuery,
   sponsorsQuery,
   execQuery,
@@ -39,6 +40,15 @@ export async function getUpcomingEvents(): Promise<UpcomingEvent[]> {
 export async function getPastEvents(): Promise<PastEvent[]> {
   if (USE_MOCKS) return mockPastEvents as PastEvent[];
   return sanityFetch<PastEvent[]>({ query: pastEventsQuery, tags: ["event"] });
+}
+
+export async function getRecentPastEvents(): Promise<PastEvent[]> {
+  if (USE_MOCKS) {
+    return [...(mockPastEvents as PastEvent[])]
+      .sort((a, b) => b.startDateTime.localeCompare(a.startDateTime))
+      .slice(0, 3);
+  }
+  return sanityFetch<PastEvent[]>({ query: recentPastEventsQuery, tags: ["event"] });
 }
 
 export async function getEventBySlug(slug: string): Promise<EventDetail | null> {

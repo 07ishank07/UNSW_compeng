@@ -6,7 +6,7 @@ export const mockSiteSettings = {
   socials: [
     { platform: "instagram", url: "https://www.instagram.com/unswcompengsoc/" },
     { platform: "linkedin", url: "https://linkedin.com/company/compengsoc" },
-    { platform: "discord", url: "https://discord.gg/compengsoc" },
+    { platform: "discord", url: "https://discord.gg/DHFDcaNgSH" },
   ],
   newsletterUrl: null,
   defaultSeo: {

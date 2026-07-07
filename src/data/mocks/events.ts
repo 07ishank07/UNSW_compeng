@@ -45,6 +45,24 @@ export const mockUpcomingEvents = [
 
 export const mockPastEvents = [
   {
+    _id: "mock-event-past-3",
+    title: "Soldering 101",
+    slug: "soldering-101",
+    eventType: "workshop",
+    startDateTime: "2026-05-14T16:00:00+10:00",
+    location: "Willis Annexe Makerspace, UNSW",
+    image: null,
+  },
+  {
+    _id: "mock-event-past-2",
+    title: "Autumn Trivia Night",
+    slug: "autumn-trivia-night",
+    eventType: "social",
+    startDateTime: "2026-04-02T18:30:00+11:00",
+    location: "Whitehouse, UNSW Kensington",
+    image: null,
+  },
+  {
     _id: "mock-event-past-1",
     title: "Orientation BBQ",
     slug: "orientation-bbq",

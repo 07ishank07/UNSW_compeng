@@ -22,7 +22,7 @@ const CATEGORY_LABELS: Record<ResourceCategory, string> = {
 };
 
 const CATEGORY_ACCENT: Record<ResourceCategory, string> = {
-  wiki: "text-signal",
+  wiki: "text-slate",
   notes: "text-copper",
   cheatsheet: "text-copper-bright",
   pcb: "text-gold",

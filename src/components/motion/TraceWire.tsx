@@ -176,20 +176,20 @@ export function TraceWire() {
     >
       <defs>
         <filter id="tw-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2.4" result="b" />
+          <feGaussianBlur stdDeviation="1.2" result="b" />
           <feMerge>
             <feMergeNode in="b" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
         <style>{`
-          #tw-trace { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-copper) 55%, transparent)); }
+          #tw-trace { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--color-copper) 25%, transparent)); }
           .tw-via { fill: var(--color-copper); transition: fill var(--dur-fast) var(--ease-energize); }
           .via--lit {
-            fill: var(--color-gold-bright);
+            fill: var(--color-gold);
             filter:
-              drop-shadow(0 0 2px var(--color-gold-bright))
-              drop-shadow(0 0 6px var(--color-purple));
+              drop-shadow(0 0 1px color-mix(in srgb, var(--color-gold) 60%, transparent))
+              drop-shadow(0 0 3px color-mix(in srgb, var(--color-purple) 40%, transparent));
           }
         `}</style>
       </defs>
@@ -209,7 +209,7 @@ export function TraceWire() {
         id="tw-pulse"
         d={d}
         fill="none"
-        stroke="var(--color-gold-bright)"
+        stroke="var(--color-gold)"
         strokeWidth="2.6"
         strokeLinecap="round"
         strokeLinejoin="round"

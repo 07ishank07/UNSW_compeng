@@ -1,22 +1,26 @@
 @import "tailwindcss";
 
 /* Tape-out colour palette (docs/design-language.md §0.2.1). TS mirror lives at
-   src/lib/design-tokens.ts for shader/canvas code that can't read CSS vars —
+   src/lib/design-tokens.ts for canvas/JS code that can't read CSS vars —
    change both files in the same commit if a value here changes. */
 @theme {
+  /* Structural neutrals */
   --color-substrate: #0a0b0f;
-  --color-copper: #c77b45;
-  --color-copper-bright: #e8a877;
-  --color-gold: #d9b36a;
-  /* Brand accents sampled from the society logo (public/brand/logo.png) —
-     the lit gate gold and the purple field. Energized hero/Trace states. */
-  --color-gold-bright: #ffda03;
-  --color-purple: #551081;
-  --color-purple-bright: #7b3fb0;
-  --color-signal: #86e0d8;
-  --color-solder: #103a33;
   --color-silk: #ecece4;
   --color-ghost: #8a8d98;
+  --color-solder: #103a33;
+  /* Logo-sourced brand accents (public/brand/logo.png). Contrast vs substrate:
+     gold 9.9:1 ✓ text-safe · slate 4.7:1 ✓ text-safe ·
+     crimson 2.2:1 ✗ decorative only, never text/icons ·
+     purple 1.7:1 ✗ fills/borders/decor only, never text/icons. */
+  --color-gold: #d9b36a;
+  --color-purple: #551081;
+  --color-crimson: #931621;
+  --color-slate: #508484;
+  /* Material exception — the copper Trace pair (docs/design-language.md §0.2.1).
+     Not a brand accent: it is the PCB-material colour of the bus/Trace system. */
+  --color-copper: #c77b45;
+  --color-copper-bright: #e8a877;
 
   /* Fluid type scale (docs/design-language.md §0.2.2). */
   --text-display: clamp(2.5rem, 6vw, 5.5rem);
@@ -109,15 +113,15 @@ body {
    Never a constant effect. See src/components/motion/glitch.ts. */
 @keyframes glitch-chroma {
   0%, 100% { text-shadow: none; transform: translate3d(0,0,0); }
-  20% { text-shadow: -2px 0 var(--color-signal), 2px 0 var(--color-purple-bright); transform: translate3d(1px,0,0); }
-  45% { text-shadow: 2px 0 var(--color-signal), -2px 0 var(--color-purple-bright); transform: translate3d(-1px,0,0); }
+  20% { text-shadow: -2px 0 var(--color-slate), 2px 0 var(--color-purple); transform: translate3d(1px,0,0); }
+  45% { text-shadow: 2px 0 var(--color-slate), -2px 0 var(--color-purple); transform: translate3d(-1px,0,0); }
   70% { text-shadow: -1px 0 var(--color-copper-bright), 1px 0 var(--color-purple); transform: translate3d(1px,0,0); }
 }
 .glitch-fire { animation: glitch-chroma 260ms steps(3, end) both; }
 
 @keyframes glitch-shift {
   0%, 100% { filter: none; transform: translate3d(0,0,0); }
-  30% { filter: drop-shadow(-2px 0 var(--color-signal)) drop-shadow(2px 0 var(--color-purple-bright)); transform: translate3d(1px,0,0); }
+  30% { filter: drop-shadow(-2px 0 var(--color-slate)) drop-shadow(2px 0 var(--color-purple)); transform: translate3d(1px,0,0); }
   60% { filter: drop-shadow(2px 0 var(--color-copper-bright)); transform: translate3d(-1px,0,0); }
 }
 .glitch-fire-img { animation: glitch-shift 260ms steps(3, end) both; }
@@ -160,7 +164,7 @@ body {
 .nav-link::after {
   content: "";
   position: absolute; left: 0; right: 0; bottom: -6px; height: 2px;
-  background: var(--color-gold-bright);
+  background: var(--color-gold);
   transform: scaleX(0); transform-origin: left;
   transition: transform var(--dur-base) var(--ease-energize);
 }

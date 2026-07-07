@@ -54,16 +54,16 @@ export function HeroGate() {
       <style>{`
         .hg-glow {
           background: radial-gradient(circle at center,
-            color-mix(in srgb, var(--color-purple) 72%, transparent) 0%,
-            color-mix(in srgb, var(--color-purple) 20%, transparent) 38%,
+            color-mix(in srgb, var(--color-purple) 36%, transparent) 0%,
+            color-mix(in srgb, var(--color-purple) 10%, transparent) 38%,
             transparent 64%);
           filter: blur(30px);
           transition: background var(--dur-slow) var(--ease-energize);
         }
         .hg-energized .hg-glow {
           background: radial-gradient(circle at center,
-            color-mix(in srgb, var(--color-gold) 60%, transparent) 0%,
-            color-mix(in srgb, var(--color-purple) 28%, transparent) 42%,
+            color-mix(in srgb, var(--color-gold) 30%, transparent) 0%,
+            color-mix(in srgb, var(--color-purple) 14%, transparent) 42%,
             transparent 66%);
         }
         .hg-card {
@@ -74,11 +74,11 @@ export function HeroGate() {
           border: 1px solid color-mix(in srgb, var(--color-copper) 18%, transparent);
           border-radius: 16px;
           opacity: 0.5;
-          -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent);
-                  mask-image: radial-gradient(closest-side, #000 58%, transparent);
+          -webkit-mask-image: radial-gradient(closest-side, black 58%, transparent);
+                  mask-image: radial-gradient(closest-side, black 58%, transparent);
         }
         .hg-plate {
-          background: radial-gradient(closest-side, color-mix(in srgb, #000 55%, transparent), transparent 72%);
+          background: radial-gradient(closest-side, color-mix(in srgb, black 55%, transparent), transparent 72%);
           filter: blur(7px);
         }
         .hg-mark {
@@ -86,11 +86,11 @@ export function HeroGate() {
                      rotateY(calc(var(--mx) * 5deg))
                      rotateX(calc(var(--my) * -5deg));
           transition: transform var(--dur-fast) var(--ease-energize);
-          filter: drop-shadow(0 14px 26px color-mix(in srgb, #000 60%, transparent));
+          filter: drop-shadow(0 14px 26px color-mix(in srgb, black 60%, transparent));
         }
         .hg-sheen {
           background: radial-gradient(38% 38% at calc(50% + var(--mx) * 16%) calc(42% + var(--my) * 16%),
-            color-mix(in srgb, var(--color-gold-bright) 24%, transparent), transparent 70%);
+            color-mix(in srgb, var(--color-gold) 12%, transparent), transparent 70%);
           mix-blend-mode: screen;
           transition: background var(--dur-fast) var(--ease-energize);
         }

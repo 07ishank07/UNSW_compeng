@@ -2,18 +2,24 @@ import { HeroGate } from "@/components/depth/HeroGate";
 import { SplitHeadline } from "@/components/motion/SplitHeadline";
 import { PeriodicGlitch } from "@/components/motion/PeriodicGlitch";
 import AboutSection from "@/components/modules/AboutSection";
-import InstagramCta from "@/components/modules/InstagramCta";
+import FollowSection from "@/components/modules/FollowSection";
+import RecentEventsSection from "@/components/modules/RecentEventsSection";
 import ContactSection from "@/components/modules/ContactSection";
-import { getSiteSettings } from "@/lib/content";
+import { getRecentPastEvents, getSiteSettings } from "@/lib/content";
 
-// TODO: ensure the Sanity siteSettings doc carries an `instagram` social so this
-// stays content-managed; the fallback is the canonical handle.
+// Fallbacks when the Studio siteSettings doc doesn't (yet) carry these socials.
 const INSTAGRAM_FALLBACK = "https://www.instagram.com/unswcompengsoc/";
+const DISCORD_FALLBACK = "https://discord.gg/DHFDcaNgSH";
 
 export default async function Home() {
-  const settings = await getSiteSettings();
+  const [settings, recentEvents] = await Promise.all([
+    getSiteSettings(),
+    getRecentPastEvents(),
+  ]);
   const instagramUrl =
     settings?.socials?.find((s) => s.platform === "instagram")?.url ?? INSTAGRAM_FALLBACK;
+  const discordUrl =
+    settings?.socials?.find((s) => s.platform === "discord")?.url ?? DISCORD_FALLBACK;
 
   return (
     <main className="flex-1">
@@ -35,7 +41,7 @@ export default async function Home() {
           <SplitHeadline
             as="h1"
             weight={[420, 600]}
-            className="js-glitch-text font-display text-display text-silk leading-[1.05] tracking-tight [text-shadow:0_0_28px_color-mix(in_srgb,var(--color-purple)_55%,transparent),0_0_60px_color-mix(in_srgb,var(--color-purple)_30%,transparent)]"
+            className="js-glitch-text font-display text-display text-silk leading-[1.05] tracking-tight [text-shadow:0_0_14px_color-mix(in_srgb,var(--color-purple)_28%,transparent)]"
           >
             CompEngSoc
           </SplitHeadline>
@@ -56,9 +62,9 @@ export default async function Home() {
             className="
               inline-block px-8 py-3 rounded-sm
               bg-gold text-substrate font-body font-semibold text-sm
-              hover:bg-gold-bright lift
-              shadow-[0_0_24px_color-mix(in_srgb,var(--color-gold)_35%,transparent)]
-              hover:shadow-[0_0_36px_color-mix(in_srgb,var(--color-gold)_50%,transparent)]
+              hover:bg-[color-mix(in_oklch,var(--color-gold)_85%,white)] lift
+              shadow-[0_4px_24px_color-mix(in_oklch,var(--color-gold)_15%,transparent)]
+              hover:shadow-[0_4px_24px_color-mix(in_oklch,var(--color-gold)_22%,transparent)]
               focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold
             "
           >
@@ -72,7 +78,8 @@ export default async function Home() {
       </section>
 
       <AboutSection />
-      <InstagramCta url={instagramUrl} />
+      <RecentEventsSection events={recentEvents} />
+      <FollowSection instagramUrl={instagramUrl} discordUrl={discordUrl} />
       <ContactSection settings={settings} />
     </main>
   );

@@ -124,6 +124,25 @@ npm run preview     # builds + runs in the actual Workers runtime locally — us
 ```
 `npm run dev` is fine for everyday work (including the canvas/shader/Sanity-mocks loop from before). Run `npm run preview` before trusting anything Workers-specific (bindings, the revalidate route, image handling) — `next dev` doesn't surface Workers-runtime-only bugs.
 
+### Sanity content not appearing / 404s on routes
+
+**Content edited in Studio isn't showing up on localhost:**
+1. Make sure you hit **Publish** in the Studio — "Save" only saves a draft. The client uses `perspective: "published"` so drafts are invisible.
+2. `sanityFetch` defaults to `revalidate: 60` — changes take up to a minute to appear even after publishing. Wait 60 s then hard-refresh (`Ctrl+Shift+R`), or restart the dev server to flush the cache instantly.
+
+**Routes returning 404 (but files exist on disk):**
+The dev server went stale — this happens after a `git pull` or branch switch on Windows where Turbopack's file-watcher misses new route files. Fix:
+```powershell
+# Ctrl+C to stop the running server, then:
+Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+npm run dev
+```
+Sanity itself is almost never the cause. To confirm the backend is healthy before debugging locally:
+```powershell
+curl.exe "https://ex2of3t7.api.sanity.io/v2021-10-21/data/query/production?query=*%5B0%5D"
+# 200 + JSON → backend fine, problem is local. 401/403 → dataset went private. 404 → wrong project ID or dataset name.
+```
+
 ## 5.4 Hosting, DNS & handover
 
 ### 5.4.1 GitHub — unchanged
