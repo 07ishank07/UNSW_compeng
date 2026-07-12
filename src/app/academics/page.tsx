@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getAcademicResources } from "@/lib/content";
 import AcademicsGrid from "@/components/modules/AcademicsGrid";
 import PageHeader from "@/components/ui/PageHeader";
-import { Reveal } from "@/components/motion/Reveal";
+import { FIELD } from "@/lib/fieldRecipes";
 
 export const metadata: Metadata = {
   title: "Academics — CompEngSoc",
@@ -18,10 +18,9 @@ export default async function AcademicsPage() {
         label="// memory-map"
         title="Academics"
         subtitle="Peer-maintained notes, cheat sheets, and guides for the CompEng degree."
+        signal={{ ...FIELD.teal, shape: "simplex", opacity: 0.8, seed: 0 }}
       />
-      <Reveal>
-        <AcademicsGrid resources={resources} />
-      </Reveal>
+      <AcademicsGrid resources={resources} />
     </main>
   );
 }

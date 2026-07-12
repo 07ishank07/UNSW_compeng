@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { getSponsors } from "@/lib/content";
+import { getSponsors, getSiteSettings } from "@/lib/content";
 import SponsorsGrid from "@/components/modules/SponsorsGrid";
 import PageHeader from "@/components/ui/PageHeader";
-import { Reveal } from "@/components/motion/Reveal";
+import { FIELD } from "@/lib/fieldRecipes";
 
 export const metadata: Metadata = {
   title: "Sponsors — CompEngSoc",
@@ -11,17 +11,16 @@ export const metadata: Metadata = {
 };
 
 export default async function SponsorsPage() {
-  const sponsors = await getSponsors();
+  const [sponsors, settings] = await Promise.all([getSponsors(), getSiteSettings()]);
   return (
     <main>
       <PageHeader
         label="// power-delivery-network"
         title="Sponsors"
         subtitle="The organisations that power our workshops, events, and student programs."
+        signal={{ ...FIELD.gold, shape: "sphere", opacity: 0.8, seed: 0 }}
       />
-      <Reveal>
-        <SponsorsGrid sponsors={sponsors} />
-      </Reveal>
+      <SponsorsGrid sponsors={sponsors} contactEmail={settings?.contactEmail ?? null} />
     </main>
   );
 }

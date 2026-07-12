@@ -10,8 +10,11 @@
  *   - Author the path in REAL px: viewBox = measured width × document height, so
  *     1 unit ≈ 1px and nothing is stretched (vias stay circular, not ellipses).
  *   - Route it as a spine inside the side gutter so it never sits over interactive
- *     content, kept at -z-10 behind content, with a copper drop-shadow glow so it
- *     reads as a depth layer rather than a line slapped on top.
+ *     content, kept at -z-10 behind content.
+ *
+ * Material rule (docs/design-language.md §0.2.3): the trace is PRINTED copper —
+ * solid token-coloured strokes at hairline weight, no glow filters, no
+ * drop-shadows. Vias light copper → accent by fill change alone.
  *
  * Positioning rule (do NOT regress — §0.2.3): absolute top-0, height = document
  * height; never fixed/viewport (that collapses the coordinate space).
@@ -22,13 +25,12 @@
  *
  * GSAP is loaded lazily (loadGsap) inside the effect — it is also dynamically
  * imported as a whole via DecorLayer — so none of it touches first-load JS.
- * One concern: animation only. Publishes { page, hero } into scrollSignal.
+ * One concern: animation only.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useDocumentHeight } from "@/hooks/useDocumentHeight";
-import { scrollSignal } from "@/lib/scrollSignal";
 import { loadGsap } from "./loadGsap";
 
 interface Via {
@@ -98,7 +100,6 @@ export function TraceWire() {
           gsap.set(trace, { drawSVG: "100%" });
           gsap.set(pulse, { autoAlpha: 0 });
           viaEls.forEach((v) => v.classList.add("via--lit"));
-          scrollSignal.set({ page: 0, hero: 0 });
           return;
         }
 
@@ -113,10 +114,6 @@ export function TraceWire() {
             start: 0,
             end,
             scrub: 1,
-            onUpdate(self) {
-              const heroRaw = window.scrollY / window.innerHeight;
-              scrollSignal.set({ page: self.progress, hero: Math.min(1, Math.max(0, heroRaw)) });
-            },
           },
         });
 
@@ -175,45 +172,31 @@ export function TraceWire() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <filter id="tw-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="1.2" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
         <style>{`
-          #tw-trace { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--color-copper) 25%, transparent)); }
-          .tw-via { fill: var(--color-copper); transition: fill var(--dur-fast) var(--ease-energize); }
-          .via--lit {
-            fill: var(--color-gold);
-            filter:
-              drop-shadow(0 0 1px color-mix(in srgb, var(--color-gold) 60%, transparent))
-              drop-shadow(0 0 3px color-mix(in srgb, var(--color-purple) 40%, transparent));
-          }
+          .tw-via { fill: var(--color-copper); transition: fill var(--dur-fast) var(--ease-out); }
+          .via--lit { fill: var(--color-accent-gold); }
         `}</style>
       </defs>
 
-      {/* Copper trace — drawn in by DrawSVG + ScrollTrigger */}
+      {/* Copper trace — drawn in by DrawSVG + ScrollTrigger. Solid hairline stroke. */}
       <path
         id="tw-trace"
         d={d}
         fill="none"
         stroke="var(--color-copper)"
-        strokeWidth="2"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* Signal pulse — a short, gold-hot segment that travels the path with scroll */}
+      {/* Signal pulse — a short accent segment that travels the path with scroll */}
       <path
         id="tw-pulse"
         d={d}
         fill="none"
-        stroke="var(--color-gold)"
-        strokeWidth="2.6"
+        stroke="var(--color-accent-gold)"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        filter="url(#tw-glow)"
       />
       {/* Vias — junction lights at section entry points */}
       {vias.map((v, i) => (

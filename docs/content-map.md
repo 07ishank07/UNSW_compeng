@@ -65,13 +65,12 @@
 
 Each standard club utility is fetched from Sanity and rendered as a recognised hardware subsystem. **Legibility and accessible interaction come first; the metaphor is the styling layer, never an obstacle.**
 
-### 1.3.1 Events → "Signal Timeline"
-- Events render as nodes on a copper bus drawn as a **clock/waveform**. **Upcoming** events are *energized* (gold, gently pulsing); **past** events are *de-energized* (dim copper/ghost). Status derives from `startDateTime` vs now (computed client-side), not a manual flag, so it can never go stale.
-- Each event's `eventType` (cruise, camp, workshop, networking, social, hackathon) maps to a "packet type" with a mono label and a small glyph.
-- The whole card is one large accessible click target → `/events/[slug]`. The waveform sits behind it (`pointer-events: none`).
-- **Hover/focus → a "datasheet" panel** slides in: date/time (mono), location, short description, and a "Get tickets" CTA (`ticketUrl`) when present. Keyboard-reachable; the panel content is also rendered on the detail page so nothing is hover-only.
-- Desktop: horizontally scannable timeline. Mobile: vertical stack of datasheet cards (no horizontal scroll).
-- Example content to expect: *Vivid Harbour Cruise*, *First-Year Camp*, *Intro-to-FPGA Workshop*.
+### 1.3.1 Events → editorial poster timeline
+> 2026-07 cinematic makeover: the waveform/gold-pulse/slide-in-datasheet spec below was superseded by an **editorial poster layout** (the makeover retired cards-for-everything and per-element glow/pulse). What ships:
+- The **soonest upcoming** event is a full-width **poster** (`EventCard featured`): a crimson→purple token-gradient panel carrying every hue, a **dramatic SplitText title**, a mono **datasheet rail** (eventType · when · where), and one gold ticket CTA. The rest are compact editorial cards in an asymmetric two-up grid; **past** events de-card into a receded hairline-row archive.
+- Status still derives from `startDateTime` vs now (fetch-split, computed — never a stored flag); "featured" is purely positional (soonest), not the Sanity `featured` boolean.
+- `eventType` (cruise, camp, workshop, networking, social, hackathon) → a mono label. The whole card/poster is one large accessible `<Link>` → `/events/[slug]` (gold focus ring, ≥44px); the detail page holds the same fields so nothing is hover-only. Mobile: vertical stack, no horizontal scroll.
+- **Duotone hero imagery is now built (visuals deferred).** When `heroImage` exists the poster renders a `duotone-crimson` hero (`DuotoneImage` → `urlForImage`) behind an AA deep-base scrim; otherwise the crimson→purple gradient. Types, the shared `SanityImage` query projection, and the SVG filter (`DuotoneDefs`) are all wired — but no event carries an image yet, so the poster is typographic today, with an identical-aspect placeholder so a later upload causes zero CLS. See design-language §0.2.1 "Image treatment — duotone".
 
 ### 1.3.2 Academics → "Memory Map"
 - Resources laid out as an **addressable grid of cells** (a memory map). Each cell shows a mono "address" derived from `courseCode` (e.g. `0x1004 · COMP1511`) and a human title in the body face.
@@ -83,13 +82,14 @@ Each standard club utility is fetched from Sanity and rendered as a recognised h
 - Tiers are **voltage rails**, top-down by value: `platinum` = primary rail (largest, brightest gold, top), then `gold`, `silver`, `partner`. Each sponsor is a **component drawing power from its rail**, logo seated on a pad. This makes the tier hierarchy *structurally* legible (structure = information): a higher tier is visibly a higher, brighter rail.
 - Hover/focus energizes the component and reveals its `blurb`; click → `website` (new tab).
 - Rail labels in mono carry a playful but tasteful "voltage" (e.g. `PLATINUM · 12V0`, `GOLD · 5V0`) — decorative text only, never overriding the human tier name.
+- **Logo well (built, deferred):** when `sponsor.logo` lands it sits in a neutral padded well, **grayscale at rest → full colour on hover/focus** (opacity cross-fade of two same-URL layers, never an animated `filter`); until then a muted wordmark stands in. Rank stays encoded by tile scale + rail order, never colour.
 
 ### 1.3.4 Blog → "Changelog"
 - Posts as dated entries in a **commit-log-styled list**: mono date/`category` prefix + human headline + excerpt. Fits the engineering identity and reads fast.
 - `/blog/[slug]` renders Portable Text body with the body face; code blocks (if any) in mono.
 
 ### 1.3.5 Exec team → "The Board"
-- Each exec is a labelled **component/IC** on a board: photo on the "package," `role` as a mono "part number," `name` in the body face. Hover/focus reveals socials (LinkedIn/GitHub/email). Ordered by `order`.
+- Each exec is a labelled **component/IC** on a board: photo on the "package" (**duotone-purple** graded via `DuotoneImage` so mismatched exec photos unify; a role-initials placeholder fills the same aspect box until `photo` lands), `role` as a mono "part number," `name` in the body face. Hover/focus reveals socials (LinkedIn/GitHub/email). Ordered by `order`. The gallery keeps **fixed responsive columns** (`sm:grid-cols-2 lg:grid-cols-4`), not `auto-fit` — the `col-span-2` leadership pair needs a known column count, or a lone member balloons full-width.
 - Doubles as the literal governing "board." Keep it a clean accessible grid underneath the styling.
 
 ---

@@ -6,45 +6,45 @@ type Props = { body: PortableTextBlock[] | null };
 export default function PostBody({ body }: Props) {
   if (!body || body.length === 0) {
     return (
-      <p className="font-mono text-mono-label tracking-[0.04em] text-ghost">
+      <p className="font-mono text-mono-label text-ink-muted">
         {"// body not available in mock mode"}
       </p>
     );
   }
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-[65ch]">
       <PortableText
         value={body}
         components={{
           block: {
             h2: ({ children }) => (
-              <h2 className="font-display text-h2 text-silk mt-10 mb-4">
+              <h2 className="mt-10 mb-4 font-display font-medium text-h2 text-ink">
                 {children}
               </h2>
             ),
             h3: ({ children }) => (
-              <h3 className="font-display text-xl text-silk mt-8 mb-3">
+              <h3 className="mt-8 mb-3 font-display text-h3 text-ink">
                 {children}
               </h3>
             ),
             normal: ({ children }) => (
-              <p className="text-body text-ghost mb-5 leading-relaxed">
+              <p className="mb-5 text-body text-ink-muted">
                 {children}
               </p>
             ),
             blockquote: ({ children }) => (
-              <blockquote className="border-l-2 border-copper pl-5 my-6 text-ghost italic">
+              <blockquote className="my-6 border-l-2 border-accent-slate/60 pl-5 italic text-ink-muted">
                 {children}
               </blockquote>
             ),
           },
           marks: {
             strong: ({ children }) => (
-              <strong className="font-semibold text-silk">{children}</strong>
+              <strong className="font-semibold text-ink">{children}</strong>
             ),
             em: ({ children }) => <em className="italic">{children}</em>,
             code: ({ children }) => (
-              <code className="font-mono text-mono-label text-copper bg-solder/30 px-1">
+              <code className="rounded-control bg-surface-2 px-1.5 py-0.5 font-mono text-mono-label text-ink">
                 {children}
               </code>
             ),
@@ -53,7 +53,7 @@ export default function PostBody({ body }: Props) {
                 href={value?.href}
                 target={value?.blank ? "_blank" : undefined}
                 rel={value?.blank ? "noopener noreferrer" : undefined}
-                className="text-copper hover:text-copper-bright underline transition-colors"
+                className="text-accent-gold underline transition-colors hover:text-[color-mix(in_oklch,var(--color-accent-gold)_82%,white)] motion-reduce:transition-none"
               >
                 {children}
               </a>
@@ -61,12 +61,12 @@ export default function PostBody({ body }: Props) {
           },
           list: {
             bullet: ({ children }) => (
-              <ul className="list-disc list-inside text-ghost space-y-1 mb-5">
+              <ul className="mb-5 list-inside list-disc space-y-1 text-ink-muted">
                 {children}
               </ul>
             ),
             number: ({ children }) => (
-              <ol className="list-decimal list-inside text-ghost space-y-1 mb-5">
+              <ol className="mb-5 list-inside list-decimal space-y-1 text-ink-muted">
                 {children}
               </ol>
             ),

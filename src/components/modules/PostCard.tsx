@@ -22,37 +22,34 @@ export default function PostCard({ post }: Props) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group block border-b border-solder py-6 hover:border-gold lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+      className="group block border-b border-hairline py-7 lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-gold"
     >
-      <div className="flex items-center gap-3 mb-2 flex-wrap">
-        <span className="font-mono text-mono-label uppercase tracking-[0.04em] text-ghost">
+      <div className="mb-2 flex flex-wrap items-center gap-3">
+        <span className="font-mono text-mono-label uppercase text-ink-muted">
           {formatDate(post.publishedAt)}
         </span>
         {post.category && (
           <>
-            <span
-              className="font-mono text-mono-label text-ghost"
-              aria-hidden="true"
-            >
+            <span className="font-mono text-mono-label text-ink-muted" aria-hidden="true">
               ·
             </span>
-            <span className="font-mono text-mono-label uppercase tracking-[0.04em] text-copper">
+            <span className="font-mono text-mono-label uppercase text-purple-soft">
               {CATEGORY_LABELS[post.category] ??
                 post.category.toUpperCase()}
             </span>
           </>
         )}
       </div>
-      <h3 className="font-display text-xl text-silk group-hover:text-copper-bright transition-colors mb-2">
+      <h3 className="vf-shift mb-2 font-display text-h3 text-ink line-clamp-2 transition-colors group-hover:text-accent-gold motion-reduce:transition-none">
         {post.title}
       </h3>
       {post.excerpt && (
-        <p className="text-body text-ghost text-sm leading-relaxed">
+        <p className="max-w-[70ch] text-pretty text-body text-ink-muted line-clamp-3">
           {post.excerpt}
         </p>
       )}
       {post.author && (
-        <p className="font-mono text-mono-label uppercase tracking-[0.04em] text-ghost mt-3">
+        <p className="mt-3 font-mono text-mono-label uppercase text-ink-muted">
           {post.author}
         </p>
       )}

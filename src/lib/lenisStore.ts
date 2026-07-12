@@ -3,7 +3,7 @@
  * SmoothScrollProvider so other modules (e.g. the mobile menu's scroll lock)
  * can drive it without spinning up a second instance.
  *
- * Mirrors the framework-agnostic singleton shape of scrollSignal.ts. Only the
+ * A framework-agnostic singleton holder. Only the
  * stop/start surface is typed, so importing this never pulls in Lenis's types
  * or runtime. Under reduced motion no instance is ever created, so consumers
  * must handle a null instance (e.g. fall back to a CSS scroll lock).

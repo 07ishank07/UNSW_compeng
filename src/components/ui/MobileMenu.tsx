@@ -14,7 +14,7 @@
  *    locks the document's overflow/overscroll on every device — Lenis isn't wired
  *    for touch, so its stop() alone wouldn't hold back native finger-drag scrolling
  *    (and under reduced motion Lenis never boots at all).
- *  - Open/close transition uses ENERGIZE_BEZIER + DURATION from lib/easing.ts;
+ *  - Open/close transition uses EASE_OUT_CSS + DURATION from lib/easing.ts;
  *    instant under reduced motion.
  */
 import { Link } from "next-view-transitions";
@@ -22,7 +22,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { lenisStore } from "@/lib/lenisStore";
-import { DURATION, ENERGIZE_BEZIER } from "@/lib/easing";
+import { DURATION, EASE_OUT_CSS } from "@/lib/easing";
 import { navLinks } from "./navLinks";
 
 type Props = { open: boolean; onClose: () => void; id: string };
@@ -87,7 +87,7 @@ export default function MobileMenu({ open, onClose, id }: Props) {
   const transition = {
     transitionProperty: "opacity, transform",
     transitionDuration: `${reduced ? 0 : DURATION.base}s`,
-    transitionTimingFunction: `cubic-bezier(${ENERGIZE_BEZIER})`,
+    transitionTimingFunction: `cubic-bezier(${EASE_OUT_CSS})`,
   } as const;
 
   return (
@@ -100,7 +100,7 @@ export default function MobileMenu({ open, onClose, id }: Props) {
         if (e.target === e.currentTarget) onClose();
       }}
       style={transition}
-      className={`lg:hidden fixed inset-0 z-50 flex flex-col bg-substrate/97 backdrop-blur-sm ${
+      className={`lg:hidden fixed inset-0 z-50 flex flex-col bg-base-deep/97 backdrop-blur-sm ${
         open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
       }`}
     >
@@ -110,9 +110,16 @@ export default function MobileMenu({ open, onClose, id }: Props) {
           type="button"
           onClick={onClose}
           aria-label="Close menu"
-          className="inline-flex items-center justify-center min-h-11 min-w-11 text-copper hover:text-copper-bright font-mono text-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+          className="inline-flex items-center justify-center min-h-11 min-w-11 text-ink hover:text-accent-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-gold"
         >
-          ✕
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path
+              d="M5 5l10 10M15 5L5 15"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
         </button>
       </div>
 
@@ -126,8 +133,8 @@ export default function MobileMenu({ open, onClose, id }: Props) {
                   href={href}
                   onClick={onClose}
                   aria-current={active ? "page" : undefined}
-                  className={`flex items-center justify-center min-h-11 px-6 font-display text-h2 tracking-tight focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold ${
-                    active ? "text-silk" : "text-ghost hover:text-silk"
+                  className={`flex items-center justify-center min-h-11 px-6 font-display text-h2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-gold ${
+                    active ? "text-ink" : "text-ink-muted hover:text-ink"
                   }`}
                 >
                   {label}

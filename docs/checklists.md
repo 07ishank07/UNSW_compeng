@@ -7,11 +7,11 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 ## 2.1 Global performance & loading
 
 **SUCCESS**
-- First load JS for the public routes stays lean: the **GSAP suite** (core + ScrollTrigger + DrawSVG + SplitText) is **lazy-loaded** (`loadGsap`, after hydration) and the decorative layers are `ssr:false` (`DecorLayer`), so neither gates first paint. Measured first-load (this build): **~194 KB gzip** on `/`, `/events`, `/sponsors`, `/team` (summed from each prerendered route's script set). There is no WebGL bundle anymore.
+- First load JS for the public routes stays lean: the **GSAP suite** (core + ScrollTrigger + DrawSVG + SplitText) is **lazy-loaded** (`loadGsap`, after hydration) and the decorative layers — including the one WebGL surface (`DitherField`) — are `ssr:false` (`DecorLayer`), so neither gates first paint. The field adds **no runtime dependency** (GLSL is inline strings; noise runs on the GPU, no `simplex-noise` package). `playwright-core` is a devDependency (perf-probe only). Measured first-load target: **~194 KB gzip** on `/`, `/events`, `/sponsors`, `/team`.
 - Largest Contentful Paint < 2.5s and Interaction-to-Next-Paint < 200ms on a mid-tier mobile (throttled) for `/`, `/events`, `/sponsors`.
-- The canvas/asset bundle (shaders, glTF, textures) finishes loading in **under ~1.5s** on a good connection, and shows a lightweight boot/skeleton until ready.
 - Fonts are self-hosted via `next/font/local` with `display: swap`; no layout shift on font load (CLS ≈ 0).
 - Images from Sanity go through `@sanity/image-url` with explicit width/quality and `next/image` (or Sanity CDN params); no full-resolution originals shipped.
+- Any adopted external component (e.g. from the 21st.dev list) passes the §0.2.5 guardrails **before** integration: no NEW WebGL surface (the ONE sanctioned WebGL is the `DitherField`; anything else is reimplemented in CSS/SVG or rejected), no NEW always-on rAF loop, no new animation library (GSAP/Lenis only), restyled to tokens with zero hardcoded hex — see the adaptations (CPU-schematic → `CircuitSchematic`, SpecialText → `ScrambleLabel`/`SplitHeadline`, Osmo-parallax → `ParallaxLayers`, dithering-shader → `DitherField`; container-scroll pin and cursor-grid were dropped/cut for fps).
 
 **FAILURE**
 - The GSAP suite or the decorative layers appear in the initial shared bundle or block first paint. (There is no longer any `three`/R3F.)
@@ -20,13 +20,16 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 
 ## 2.2 Layered-2D depth (the Gate hero + DepthField)
 
-> The hero/depth system is CSS/SVG, not WebGL (§0.2.4). These criteria replace the retired WebGL ones.
+> The depth system is layered-2D CSS/SVG **plus the one sanctioned WebGL colour field** (`DitherField`, §0.2.1/§0.2.4).
 
 **SUCCESS**
-- Maintains **~60 FPS** during parallax / reveal / scroll on a mid-tier device: only `transform`/`opacity` (plus cheap `background`/`filter`) animate, staying on the compositor — no layout/paint thrash.
+- **Colour reads as one continuous composition, not stacked blocks:** every route is transparent over the flowing `DitherField`; any crop of any component carries several hues (leaning purple/gold), and there are no hard section-boundary colour seams. Verified visually against `node scripts/perf-probe.mjs` screenshots (every route, desktop + 360px).
+- Maintains **~60 FPS scroll** on a mid-tier device; holds **≥50 at 1–2× CPU throttle** (4× is an extreme stress — degrades gracefully). Verified with `node scripts/perf-probe.mjs` (per-route fps under throttle + 360px overflow + reduced-motion). Only `transform`/`opacity` animate (**never `filter`**; prefer `box-shadow` over `filter: drop-shadow`, and **no `mask-image`/3D/`pin` on scrolling elements** — all recomposite per scroll frame). Cut order if frames drop: cursor-grid (already cut) → parallax drift/settle → schematic stagger.
+- Heavy effects are reduced/disabled at mobile widths where needed (`gsap.matchMedia()`), and the pointer channel is already gated off on touch/weak devices.
+- **No glow-as-elevation anywhere**: depth reads from colour-field steps (`base → base-2 → surface`) + hairline borders + layered ambient shadows. The blueprint grid stays ≤10% opacity, and the grain veil (2–4%) is present over the colour fields — it is what stops the large fields from banding.
 - The pointer-parallax channel (`usePointerParallax`) is **rAF-throttled** (≤ one CSS-var write per frame, never per raw event), **disabled on touch and under reduced motion**, and degrades to static on weak devices (`navigator.hardwareConcurrency < 4` → `data-perf="lite"`).
-- **No idle loops:** the only `requestAnimationFrame` in the codebase is the pointer channel; it is scheduled solely on movement and cancelled on `visibilitychange` (hidden tab). Scroll-driven motion is GSAP ScrollTrigger, which only updates in range. Nothing animates off-screen or in a background tab.
-- No raw pixel-buffer rendering exists (no `<canvas>`/WebGL), so there is **no device-pixel-ratio surface to cap** — the compositor renders at native resolution. (The old `dpr={[1,2]}` cap is N/A.)
+- **No stray loops:** exactly two sanctioned `requestAnimationFrame` loops — the pointer channel and the `DitherField` redraw. Both cancel on `visibilitychange`; the field also **freezes during active scroll** (a scroll listener skips the redraw). Scroll-driven motion is GSAP ScrollTrigger, which only updates in range. Nothing animates off-screen or in a background tab.
+- The one WebGL surface (`DitherField`) caps its cost: backing store at a **capped internal resolution** (long side ≤ ~480px) upscaled with `image-rendering: pixelated` (so DPR is effectively capped — the chunky dither IS the aesthetic), redraw fps-capped, static single frame under reduced-motion / coarse-pointer / `hardwareConcurrency < 4`, and a CSS `.dither-fallback` gradient when WebGL2 is unavailable or the context is lost.
 - Every decorative/background layer extends the **full document height** (`useDocumentHeight` → `scrollHeight`) and stays consistent to the footer; nothing reverts or blanks partway down a long page.
 - GSAP (core + ScrollTrigger + DrawSVG + SplitText) is **lazy-loaded** (`loadGsap`, after hydration) and decorative layers are `ssr:false` (`DecorLayer`), so neither is in first-load JS.
 - Under `prefers-reduced-motion`, all motion is replaced by a static/instant state (parallax off, breathing off, glitch off, reveals instant, the Trace already fully drawn).
@@ -42,10 +45,10 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 
 **SUCCESS**
 - A single shared **Lenis** instance drives smooth scroll and is wired to GSAP **ScrollTrigger** (`lenis.on('scroll', ScrollTrigger.update)` + `gsap.ticker`), with `lerp`/duration tuned for "weight," not nausea.
-- All GSAP work lives inside the **`useGSAP()`** hook (`@gsap/react`) scoped to a container ref, so timelines and ScrollTriggers are **reverted on unmount** automatically.
+- All GSAP work is created inside **`gsap.context(fn, ref)`** within effects (GSAP arrives via `loadGsap()`), with `ctx.revert()` in the effect cleanup, so timelines and ScrollTriggers are **reverted on unmount**.
 - The Trace draws in sync with scroll progress; the signal pulse and via lights track section entry; reduced motion shows the trace already fully drawn, statically.
 - Page transitions read as a quick "context switch" (board de-energize → re-energize) **without** a full white flash or layout jump, and never delay content interactivity by more than a frame or two.
-- `CustomEase` `energize` is registered once and reused.
+- Motion vocabulary comes from `src/lib/easing.ts` + the §0.2.5 timing table (built-in `power2.out`/`power3.out` eases; micro 0.25s, entrances 0.7s).
 
 **FAILURE**
 - ScrollTriggers or timelines persist after navigation (duplicated triggers, jittery scroll, growing listener count).
@@ -74,7 +77,8 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 - Layout is correct and comfortable from 360px to ultrawide; the Signal Timeline becomes a vertical stack on mobile; no horizontal overflow anywhere.
 - Full keyboard operability with **visible focus rings** (copper/gold outline) on every interactive element; the custom cursor never removes focus visibility.
 - Semantic HTML (landmarks, headings in order, `nav`/`main`/`footer`); all sponsor/exec images have meaningful `alt`; decorative canvas/SVG are `aria-hidden`.
-- Colour contrast clears WCAG AA for all text; "energized" states are not the *only* signal of meaning (don't rely on colour alone — pair with motion/label).
+- Colour contrast clears WCAG AA for all text **on its actual coloured field, not assumed against a dark neutral** — every sanctioned text/field pairing is enumerated and gated by `npm run check:contrast` (scripts/contrast.mjs), which must pass. The gold field takes `ink-inverse` only (light inks fail on gold), `purple-soft` never sits on `surface`, gold text on `fill-crimson` is large-only. "Energized" states are not the *only* signal of meaning (don't rely on colour alone — pair with motion/label).
+- **Zero hardcoded hex in `src/components/**` / `src/app/**` markup** — colours are tokens (`globals.css @theme` + the `design-tokens.ts` mirror) only. Radii use only the three radius tokens.
 - Touch devices get the native cursor and tap-friendly targets (≥ 44px).
 
 **FAILURE**
@@ -86,7 +90,7 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 ## 2.6 Build, types & deploy hygiene
 
 **SUCCESS**
-- `next build` (Turbopack default) passes with **zero type errors** and zero ESLint errors; `tsc --noEmit` is clean.
+- `next build` (Turbopack default) passes with **zero type errors** and zero ESLint errors; `tsc --noEmit` is clean; `npm run check:contrast` passes (palette mirror + WCAG gate).
 - `.env.local` is git-ignored; `.env.example` documents every variable; secrets are set via `wrangler secret put` and public values via `wrangler.jsonc` `vars` (see `docs/deployment.md` §5.4.2) — not a dashboard env-var UI.
 - The embedded `/studio` route builds and loads in production at `https://<domain>/studio`.
 - Lighthouse (mobile) ≥ 90 Performance / ≥ 95 Accessibility / ≥ 95 Best-Practices / ≥ 95 SEO on `/` and `/events`.

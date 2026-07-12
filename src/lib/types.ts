@@ -12,6 +12,22 @@ export type PortableTextBlock = {
   [key: string]: unknown;
 };
 
+/**
+ * A Sanity image projected for rendering: the asset reference (consumed by
+ * urlForImage / @sanity/image-url) plus the metadata a layout needs to avoid
+ * CLS — intrinsic `dimensions` for the aspect box and the base64 `lqip` for a
+ * blur-up placeholder. A whole `SanityImage | null` field is null when the
+ * document carries no image (visuals are deferred — every field is null today
+ * until editors upload). Projected by the `<field>{ asset, alt, dimensions,
+ * lqip }` shape in src/sanity/lib/queries.ts — keep the two in lockstep.
+ */
+export type SanityImage = {
+  asset: { _ref: string };
+  alt: string | null;
+  dimensions: { width: number; height: number; aspectRatio: number } | null;
+  lqip: string | null;
+};
+
 export type UpcomingEvent = {
   _id: string;
   title: string;
@@ -22,7 +38,7 @@ export type UpcomingEvent = {
   location: string | null;
   shortDescription: string | null;
   ticketUrl: string | null;
-  image: null;
+  image: SanityImage | null;
 };
 
 export type PastEvent = {
@@ -32,7 +48,7 @@ export type PastEvent = {
   eventType: EventType;
   startDateTime: string;
   location: string | null;
-  image: null;
+  image: SanityImage | null;
 };
 
 export type EventDetail = {
@@ -46,16 +62,14 @@ export type EventDetail = {
   body: PortableTextBlock[] | null;
   ticketUrl: string | null;
   capacity: number | null;
-  image: null;
+  image: SanityImage | null;
 };
 
-export type SponsorTier = "platinum" | "gold" | "silver" | "partner";
-
+// Sponsor tiers were removed by design — one equal rail for every sponsor.
 export type Sponsor = {
   _id: string;
   name: string;
-  tier: SponsorTier;
-  logo: null;
+  logo: SanityImage | null;
   alt: string;
   website: string;
   blurb: string | null;
@@ -84,7 +98,7 @@ export type ExecMember = {
   role: string;
   portfolio: string | null;
   bio: string | null;
-  photo: null;
+  photo: SanityImage | null;
   socials: SocialLink[] | null;
   term: number;
 };
@@ -97,7 +111,7 @@ export type Post = {
   excerpt: string | null;
   publishedAt: string;
   author: string | null;
-  cover: null;
+  cover: SanityImage | null;
 };
 
 export type PostDetail = {
@@ -105,7 +119,7 @@ export type PostDetail = {
   category: string | null;
   publishedAt: string;
   body: PortableTextBlock[] | null;
-  cover: null;
+  cover: SanityImage | null;
   author: string | { name: string; role: string } | null;
   seo: null;
 };

@@ -5,23 +5,10 @@ export const sponsor = defineType({
   title: "Sponsor",
   type: "document",
   fields: [
+    // NOTE: sponsor tiers were removed deliberately — every sponsor sits on one
+    // equal rail (tiered ranks read as unappealing to prospective sponsors).
+    // Manual `order` is the only ranking.
     defineField({ name: "name", title: "Name", type: "string", validation: (r) => r.required() }),
-    defineField({
-      name: "tier",
-      title: "Tier",
-      type: "string",
-      description: "Determines which 'voltage rail' the sponsor sits on (Platinum = top).",
-      options: {
-        list: [
-          { title: "Platinum", value: "platinum" },
-          { title: "Gold", value: "gold" },
-          { title: "Silver", value: "silver" },
-          { title: "Partner", value: "partner" },
-        ],
-        layout: "radio",
-      },
-      validation: (r) => r.required(),
-    }),
     defineField({
       name: "logo",
       title: "Logo",
@@ -40,12 +27,12 @@ export const sponsor = defineType({
     defineField({ name: "blurb", title: "Short blurb", type: "text", rows: 3, validation: (r) => r.max(280) }),
     defineField({
       name: "order",
-      title: "Order within tier",
+      title: "Order",
       type: "number",
-      description: "Lower number = earlier. Use to rank co-tier sponsors.",
+      description: "Lower number = earlier on the rail.",
       initialValue: 0,
     }),
   ],
-  orderings: [{ title: "Tier", name: "tier", by: [{ field: "tier", direction: "asc" }, { field: "order", direction: "asc" }] }],
-  preview: { select: { title: "name", subtitle: "tier", media: "logo" } },
+  orderings: [{ title: "Order", name: "order", by: [{ field: "order", direction: "asc" }] }],
+  preview: { select: { title: "name", subtitle: "website", media: "logo" } },
 });

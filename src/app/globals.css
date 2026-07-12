@@ -1,40 +1,109 @@
 @import "tailwindcss";
 
-/* Tape-out colour palette (docs/design-language.md §0.2.1). TS mirror lives at
-   src/lib/design-tokens.ts for canvas/JS code that can't read CSS vars —
-   change both files in the same commit if a value here changes. */
-@theme {
-  /* Structural neutrals */
-  --color-substrate: #0a0b0f;
-  --color-silk: #ecece4;
-  --color-ghost: #8a8d98;
-  --color-solder: #103a33;
-  /* Logo-sourced brand accents (public/brand/logo.png). Contrast vs substrate:
-     gold 9.9:1 ✓ text-safe · slate 4.7:1 ✓ text-safe ·
-     crimson 2.2:1 ✗ decorative only, never text/icons ·
-     purple 1.7:1 ✗ fills/borders/decor only, never text/icons. */
-  --color-gold: #d9b36a;
-  --color-purple: #551081;
-  --color-crimson: #931621;
-  --color-slate: #508484;
-  /* Material exception — the copper Trace pair (docs/design-language.md §0.2.1).
-     Not a brand accent: it is the PCB-material colour of the bus/Trace system. */
-  --color-copper: #c77b45;
-  --color-copper-bright: #e8a877;
+/* Role-named design tokens (docs/design-language.md §0.2.1). TS mirror lives at
+   src/lib/design-tokens.ts for JS code that can't read CSS vars — change both
+   files AND the design-language palette table in the same commit.
+   `npm run check:contrast` (scripts/contrast.mjs) verifies the two files match
+   and that every sanctioned text/field pairing clears WCAG AA — run it after
+   ANY colour change here.
 
-  /* Fluid type scale (docs/design-language.md §0.2.2). */
-  --text-display: clamp(2.5rem, 6vw, 5.5rem);
+   SIGNAL palette (redesign): graphite AND the purple-forward ground are retired.
+   A near-black shell (#120A18) is the dominant ~85% ground; the brand purple
+   #551081 is demoted to an IDENTITY FILL only (never text — use purple-soft);
+   gold is the sole interactive accent. Elevation = shell → surface → surface-2
+   steps + hairline, never a glow (docs/clean-code.md §6.2). */
+@theme {
+  /* Shell fields — the near-black ground. base is the dominant shell; base-deep
+     is the footer/deepest band AND the scrim veil colour. base-2 collapses onto
+     surface (the SIGNAL ladder base-deep→base→surface→surface-2 has no fifth
+     rung); kept as an alias so legacy "raised band"/hover usages still resolve. */
+  --color-base: #120a18;
+  --color-base-2: #1b1024;
+  --color-base-deep: #0b0710;
+
+  /* Elevated dark panels — one step up from shell, then insets/hover states.
+     (Was the bright brand purple; purple is now an identity FILL, see below.) */
+  --color-surface: #1b1024;
+  --color-surface-2: #241531;
+
+  /* IDENTITY fill — the brand purple. Large fills, the aura, gradient endpoints,
+     logo backdrops. NEVER text (1.7:1 on shell); purple-soft is the text form. */
+  --color-purple: #551081;
+
+  /* Section fields — deep near-black colour grounds for the scroll rhythm.
+     fill-crimson is a LIVE fill/badge carrying INK text only, at any size (ink
+     7.7 ✓; ink-muted 4.34 ✗ — crimson fills are ink-only, see contrast.mjs). */
+  --color-field-crimson: #2a0e14;
+  --color-fill-crimson: #931621;
+  --color-field-slate: #16211f;
+
+  /* Inks. ink-inverse is the ONLY text colour on gold fields (9.8:1 on gold;
+     light inks all fail on gold — never place ink/ink-muted on accent-gold). */
+  --color-ink: #f2efe6;
+  --color-ink-muted: #b9b3c4;
+  --color-ink-inverse: #120a18;
+
+  /* Accents. Gold is THE interactive accent (the sole glow-adjacent colour).
+     Slate/teal is STRUCTURE — hairlines, secondary UI, large text/UI only. */
+  --color-accent-gold: #d9b368;
+  --color-accent-slate: #508484;
+
+  /* Lightened text-safe variants of the loud fills — the ONLY way purple/
+     crimson/slate appear at text sizes (fills stay fills). */
+  --color-purple-soft: #b78bd4;
+  --color-crimson-soft: #e57b85;
+  --color-slate-soft: #7fb5b5;
+
+  /* Hairlines — structural rules on every field; gold variant for emphasis
+     rules (hero ring, footer top rule). Non-text, alpha-derived, no new hex. */
+  --color-hairline: color-mix(in oklch, var(--color-ink) 12%, transparent);
+  --color-hairline-gold: color-mix(in oklch, var(--color-accent-gold) 28%, transparent);
+
+  /* Material exception — printed-copper Trace colour (TraceWire/vias only).
+     Outside the four brand colours by design (the Trace is PCB material, not
+     identity); solid hairline strokes, never a glow source. */
+  --color-copper: #c77b45;
+
+  /* Radius — exactly three values site-wide (docs/clean-code.md §6.2) */
+  --radius-control: 6px;
+  --radius-panel: 12px;
+  --radius-pill: 9999px;
+
+  /* Fluid type scale (docs/design-language.md §0.2.2). Display caps at 72px
+     with tight negative tracking; h1-page gives inner routes real scale
+     contrast (the old headers rendered h1 at h2 size); body 17px/1.5. */
+  --text-display: clamp(2.75rem, 6vw, 5.5rem);
   --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1-page: clamp(2.25rem, 4vw, 3.5rem);
+  --text-h1-page--line-height: 1.1;
+  --text-h1-page--letter-spacing: -0.015em;
   --text-h2: clamp(1.75rem, 3vw, 2.75rem);
   --text-h2--line-height: 1.15;
+  --text-h2--letter-spacing: -0.01em;
+  /* Featured poster title / featured names — fills the h3→h2 gap so a section
+     label never renders smaller than the card it introduces (SIGNAL §C). */
+  --text-title-card: clamp(1.5rem, 2.4vw, 2rem);
+  --text-title-card--line-height: 1.2;
+  --text-title-card--letter-spacing: -0.01em;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.3;
   --text-body: 1.0625rem;
-  --text-body--line-height: 1.6;
+  --text-body--line-height: 1.5;
   --text-mono-label: 0.8125rem;
-  --text-mono-label--letter-spacing: 0.04em;
+  --text-mono-label--letter-spacing: 0.08em;
 
-  /* Motion — mirrors ENERGIZE_BEZIER in src/lib/easing.ts (keep in sync).
-     Exposes the `ease-energize` Tailwind utility. */
-  --ease-energize: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Motion — mirrors EASE_OUT_CSS in src/lib/easing.ts (keep in sync).
+     Deliberately overrides Tailwind's stock ease-out so there is ONE out-ease. */
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --default-transition-duration: 250ms;
+  --default-transition-timing-function: var(--ease-out);
+
+  /* Elevation — layered soft ambient shadows (docs/design-language.md §0.2.4).
+     Plum-black at higher alpha than the graphite era: shadows read weaker on
+     saturated colour fields. Depth is colour-step + shadow, never glow. */
+  --shadow-ambient: 0 1px 2px 0 rgb(12 4 20 / 0.45), 0 8px 20px -4px rgb(12 4 20 / 0.35);
+  --shadow-panel: 0 2px 6px rgb(12 4 20 / 0.5), 0 24px 48px -12px rgb(12 4 20 / 0.55);
 }
 
 /* Font tokens reference the CSS vars next/font/local sets on <html> in layout.tsx
@@ -50,13 +119,27 @@ body {
   font-family: var(--font-body);
 }
 
-/* Page transition: de-energize (power-cut) → re-energize (RC charge).
-   ENERGIZE_BEZIER = cubic-bezier(0.16, 1, 0.3, 1) — see src/lib/easing.ts. */
+/* Horizontal-overflow safety net (SIGNAL §1.2.3). Real causes stay fixed at the
+   source (no w-screen; decorative layers are fixed inset-0 or relative isolate);
+   this only guarantees no route can ever produce a horizontal scrollbar. */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Selection — default blue selection clashes violently with the purple fields;
+   gold + inverse ink is the composition's own highlight. */
+::selection {
+  background-color: var(--color-accent-gold);
+  color: var(--color-ink-inverse);
+}
+
+/* Page transition: quick de-energize → re-energize context switch. */
 ::view-transition-old(root) {
   animation: 150ms linear both vt-out;
 }
 ::view-transition-new(root) {
-  animation: var(--dur-fast) var(--ease-energize) both vt-in;
+  animation: var(--dur-fast) var(--ease-out) both vt-in;
 }
 
 @keyframes vt-out {
@@ -75,67 +158,93 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   LAYERED-2D DEPTH SYSTEM  (replaces the retired WebGL hero)
-   docs/design-language.md §0.2.4. All depth/"pop" here is CSS compositor work —
-   transforms, blur, shadow, blend — so it runs site-wide without a 3D engine.
+   LAYERED-2D DEPTH SYSTEM
+   docs/design-language.md §0.2.4. All depth/"pop" is CSS compositor work —
+   transforms, opacity, shadow — so it runs site-wide without a 3D engine.
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* Motion durations — mirror of DURATION in src/lib/easing.ts (keep in sync). */
+/* Motion durations — mirror of DURATION in src/lib/easing.ts (keep in sync).
+   fast = micro-interactions (hover/press), base = entrances, slow = long moves. */
 :root {
-  --dur-fast: 0.4s;
+  --dur-fast: 0.25s;
   --dur-base: 0.7s;
-  --dur-slow: 1.1s;
+  --dur-slow: 1s;
+
+  /* Scrim alpha contract — density of the deep-base veil that sits behind text
+     over the animated DitherField (docs/design-language.md §0.2.4). scripts/
+     contrast.mjs alpha-composites base-deep at these values over the BRIGHTEST
+     colour the field can emit (gold) and gates the result AA, so copy stays
+     legible wherever the field's hue wanders. strong = body text; soft = large
+     display text (field shows through more). Raise if a check fails, never lower. */
+  --scrim-strong: 0.86;
+  --scrim-soft: 0.62;
 }
 
-/* Pointer-parallax channel: usePointerParallax writes a normalised −1..1 value
-   here, rAF-throttled. Registered with @property so layers interpolate smoothly
-   between the discrete per-frame writes (and so it animates, not just steps). */
-@property --mx { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --my { syntax: "<number>"; inherits: true; initial-value: 0; }
-:root { --mx: 0; --my: 0; }
+/* (Pointer-parallax / .depth-layer mouse-follow was removed in Phase 2 — the
+   mouse-following movement read as off-putting. The hero logo's masked cursor
+   effect is the only pointer-driven motion now.) */
 
-/* A parallax layer translates against the pointer by its own --depth (px).
-   The hook stops writing --mx/--my on touch / reduced-motion / weak devices, so
-   they stay 0 and every layer is simply static — no per-element branching needed. */
-.depth-layer {
-  transform: translate3d(calc(var(--mx) * var(--depth, 0) * 1px),
-                         calc(var(--my) * var(--depth, 0) * 1px), 0);
-  transition: transform var(--dur-fast) var(--ease-energize);
-  will-change: transform;
-}
-@media (prefers-reduced-motion: reduce) {
-  .depth-layer { transform: none !important; transition: none !important; will-change: auto; }
-}
-:root[data-perf="lite"] .depth-layer { transform: none !important; will-change: auto; }
-
-/* Retro-glitch accent — a brief chromatic-aberration + jitter fired ONLY at
-   meaningful moments (headline reveal complete, section energize, transition).
-   Never a constant effect. See src/components/motion/glitch.ts. */
-@keyframes glitch-chroma {
-  0%, 100% { text-shadow: none; transform: translate3d(0,0,0); }
-  20% { text-shadow: -2px 0 var(--color-slate), 2px 0 var(--color-purple); transform: translate3d(1px,0,0); }
-  45% { text-shadow: 2px 0 var(--color-slate), -2px 0 var(--color-purple); transform: translate3d(-1px,0,0); }
-  70% { text-shadow: -1px 0 var(--color-copper-bright), 1px 0 var(--color-purple); transform: translate3d(1px,0,0); }
-}
-.glitch-fire { animation: glitch-chroma 260ms steps(3, end) both; }
-
-@keyframes glitch-shift {
-  0%, 100% { filter: none; transform: translate3d(0,0,0); }
-  30% { filter: drop-shadow(-2px 0 var(--color-slate)) drop-shadow(2px 0 var(--color-purple)); transform: translate3d(1px,0,0); }
-  60% { filter: drop-shadow(2px 0 var(--color-copper-bright)); transform: translate3d(-1px,0,0); }
-}
-.glitch-fire-img { animation: glitch-shift 260ms steps(3, end) both; }
-
-@media (prefers-reduced-motion: reduce) {
-  .glitch-fire, .glitch-fire-img { animation: none !important; }
+/* Global grain veil — kills flat banding on the large colour fields and adds
+   the printed-poster tooth (docs/design-language.md §0.2.4). Static SVG
+   turbulence tile at 4% (sanctioned range 2–4%); no animation, so safe under
+   reduced motion. */
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  opacity: 0.04;
 }
 
-/* Static scanline veil — no animation, so safe under reduced motion. */
-.scanlines {
-  background-image: repeating-linear-gradient(to bottom,
-    rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.16) 3px);
-  mix-blend-mode: multiply;
+/* Text scrims — a deep-base veil that rides ABOVE the animated colour field
+   (DitherField, fixed at -z-30) and BELOW text, guaranteeing WCAG-AA contrast
+   wherever copy sits while the field's hues still wash the margins. Densest in
+   the centre (where text lives), feathered to transparent at the edges by a
+   radial mask so a scrimmed block never reads as an opaque band — the field
+   bleeds around it, not through the text. Static (no motion): safe as-is under
+   reduced motion. Alpha contract lives in :root (--scrim-strong / --scrim-soft)
+   and is gated by scripts/contrast.mjs against the brightest field colour.
+   Use `.scrim` behind body copy, `.scrim-soft` behind large display headings. */
+.scrim {
+  background: radial-gradient(
+    120% 118% at 50% 50%,
+    color-mix(in srgb, var(--color-base-deep) calc(var(--scrim-strong) * 100%), transparent) 55%,
+    transparent 100%
+  );
 }
+.scrim-soft {
+  background: radial-gradient(
+    120% 118% at 50% 50%,
+    color-mix(in srgb, var(--color-base-deep) calc(var(--scrim-soft) * 100%), transparent) 55%,
+    transparent 100%
+  );
+}
+
+/* Scrim panel — the tall-content variant of .scrim: a deep-base veil that stays
+   dense through the whole middle of a long module (lists, grids, article body)
+   and feathers only at the very top/bottom, so copy anywhere in a tall block
+   clears AA over the field. Same alpha contract (--scrim-strong), same gate. The
+   field still frames the page via the header/footer and the feathered edges. */
+.scrim-panel {
+  background: linear-gradient(
+    to bottom,
+    transparent 0,
+    color-mix(in srgb, var(--color-base-deep) calc(var(--scrim-strong) * 100%), transparent) 6%,
+    color-mix(in srgb, var(--color-base-deep) calc(var(--scrim-strong) * 100%), transparent) 94%,
+    transparent 100%
+  );
+}
+
+/* (The old .scrim-top nav vignette was removed in Phase 2 — the nav bar is now a
+   solid bg-base-deep panel, so no field bleeds behind nav copy.) */
+
+/* Duotone image grades — palette-map editor-uploaded photos into the colour
+   world so mismatched portraits/covers/logos read as one composition
+   (docs/design-language.md makeover §B/§E). STATIC SVG filters defined once in
+   components/ui/DuotoneDefs.tsx (mounted in layout) and applied via DuotoneImage.
+   NEVER transition `filter` — the grade is a fixed state, not an animation
+   (.claude/rules/motion-canvas.md). */
+.duotone-purple { filter: url("#duotone-purple"); }
+.duotone-crimson { filter: url("#duotone-crimson"); }
+.duotone-slate { filter: url("#duotone-slate"); }
 
 /* Section-reveal initial state — hidden ONLY when motion is allowed, so reduced-
    motion (and no-JS) users always see content. Cleared by Reveal.tsx via GSAP. */
@@ -143,30 +252,62 @@ body {
   [data-reveal], [data-split] { opacity: 0; }
 }
 
-/* Standardised interactive lift — every card/button/link shares one energize
-   timing (drawn from --ease-energize / --dur-fast, mirrors src/lib/easing.ts). */
+/* Standardised interactive micro-interaction — every card/button/link shares one
+   timing (0.25s, --ease-out; mirrors src/lib/easing.ts). Hover lifts −2px;
+   press settles to scale 0.98 (docs/design-language.md §0.2.5). */
 .lift {
   transition:
-    transform var(--dur-fast) var(--ease-energize),
-    border-color var(--dur-fast) var(--ease-energize),
-    background-color var(--dur-fast) var(--ease-energize),
-    box-shadow var(--dur-fast) var(--ease-energize),
-    color var(--dur-fast) var(--ease-energize);
+    transform var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 .lift:hover { transform: translateY(-2px); }
+.lift:active { transform: translateY(0) scale(0.98); }
 @media (prefers-reduced-motion: reduce) {
   .lift { transition: none; }
-  .lift:hover { transform: none; }
+  .lift:hover, .lift:active { transform: none; }
 }
 
-/* Nav links — energize colour shift + an animated active/hover underline. */
-.nav-link { position: relative; transition: color var(--dur-fast) var(--ease-energize); }
+/* Variable-weight shift on hover — transform-free emphasis for display/body faces
+   (Clash Display + Switzer expose a wght axis; JetBrains Mono is static — never
+   apply this to mono). Used on card titles inside a `group` link. */
+.vf-shift {
+  font-variation-settings: "wght" 430;
+  transition: font-variation-settings var(--dur-fast) var(--ease-out);
+}
+.group:hover .vf-shift,
+.vf-shift:hover { font-variation-settings: "wght" 580; }
+@media (prefers-reduced-motion: reduce) {
+  .vf-shift { transition: none; }
+}
+
+/* Mono marquee band (docs/design-language.md §0.2.5) — pure CSS transform loop
+   on duplicated content; pauses on hover; static row under reduced motion. */
+.marquee { overflow: hidden; }
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 36s linear infinite;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track { animation-play-state: paused; }
+@keyframes marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* Nav links — colour shift + an animated active/hover underline in the accent. */
+.nav-link { position: relative; transition: color var(--dur-fast) var(--ease-out); }
 .nav-link::after {
   content: "";
   position: absolute; left: 0; right: 0; bottom: -6px; height: 2px;
-  background: var(--color-gold);
+  background: var(--color-accent-gold);
   transform: scaleX(0); transform-origin: left;
-  transition: transform var(--dur-base) var(--ease-energize);
+  transition: transform var(--dur-base) var(--ease-out);
 }
 .nav-link[aria-current="page"]::after,
 .nav-link:hover::after { transform: scaleX(1); }

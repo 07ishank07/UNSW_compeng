@@ -1,10 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { tokens } from "@/lib/design-tokens";
 import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 import Nav from "@/components/ui/Nav";
+import SiteFooter from "@/components/ui/SiteFooter";
 import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
 import { DecorLayer } from "@/components/depth/DecorLayer";
+import { DuotoneDefs } from "@/components/ui/DuotoneDefs";
 
 const clashDisplay = localFont({
   src: "../../public/fonts/ClashDisplay-Variable.woff2",
@@ -45,6 +48,12 @@ export const metadata: Metadata = {
   },
 };
 
+// Browser-chrome colour rides the page field (design-tokens mirror — the one
+// place JS needs the palette; keep it `base` if the base field ever changes).
+export const viewport: Viewport = {
+  themeColor: tokens.base,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -56,11 +65,14 @@ export default function RootLayout({
         lang="en"
         className={`${clashDisplay.variable} ${switzer.variable} ${jetbrainsMono.variable} h-full antialiased`}
       >
-        <body className="min-h-full flex flex-col bg-substrate text-silk font-body">
+        <body className="min-h-full flex flex-col bg-base text-ink font-body">
           <DecorLayer />
+          {/* Off-DOM SVG duotone filter defs referenced by .duotone-* utilities. */}
+          <DuotoneDefs />
           <SmoothScrollProvider>
             <Nav />
             {children}
+            <SiteFooter />
           </SmoothScrollProvider>
         </body>
       </html>

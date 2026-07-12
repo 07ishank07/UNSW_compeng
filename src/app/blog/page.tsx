@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getPosts } from "@/lib/content";
-import PostsList from "@/components/modules/PostsList";
+import BlogExplorer from "@/components/modules/BlogExplorer";
 import PageHeader from "@/components/ui/PageHeader";
-import { Reveal } from "@/components/motion/Reveal";
+import { FIELD } from "@/lib/fieldRecipes";
 
 export const metadata: Metadata = {
   title: "Blog — CompEngSoc",
@@ -18,10 +18,9 @@ export default async function BlogPage() {
         label="// changelog"
         title="Blog"
         subtitle="Announcements, event recaps, and technical writing from CompEngSoc."
+        signal={{ ...FIELD.purple, shape: "warp", opacity: 0.8, seed: 0 }}
       />
-      <Reveal>
-        <PostsList posts={posts} />
-      </Reveal>
+      <BlogExplorer posts={posts} />
     </main>
   );
 }

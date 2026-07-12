@@ -14,7 +14,7 @@ export const structure: StructureResolver = (S) =>
         .child(S.documentTypeList("academicResource").title("Academic resources")),
       S.listItem()
         .title("Sponsors")
-        .child(S.documentTypeList("sponsor").title("Sponsors").defaultOrdering([{ field: "tier", direction: "asc" }])),
+        .child(S.documentTypeList("sponsor").title("Sponsors").defaultOrdering([{ field: "order", direction: "asc" }])),
       S.listItem()
         .title("Blog / changelog")
         .child(S.documentTypeList("post").title("Posts").defaultOrdering([{ field: "publishedAt", direction: "desc" }])),

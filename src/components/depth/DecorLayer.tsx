@@ -1,12 +1,14 @@
 "use client";
 /**
- * DecorLayer — defers the always-on decorative layers (DepthField + the DrawSVG
- * TraceWire) into a client-only chunk (ssr:false), per docs/checklists.md §2.1:
- * heavy decorative code is dynamically imported and never blocks first paint.
- *
- * Both are purely decorative, measure the document only after mount, and render
- * nothing meaningful before hydration — so loading them after the critical path
- * keeps GSAP DrawSVG + the depth system out of the initial parse and lowers TBT.
+ * DecorLayer — the always-on, page-wide decorative layers (deferred ssr:false).
+ * After the Phase-2 "sectioned stations" refactor the animated field is NO LONGER
+ * global — each Section owns its own SectionField. What remains here is the CALM
+ * shell texture the stations sit between:
+ *   DepthField -z-10  blueprint grid + grain (static, document-anchored, cheap)
+ *   TraceWire  -z-10  the copper bus spine — visually carries the signal between
+ *                     stations
+ * Both are decorative, measure the document only after mount, and render nothing
+ * before hydration, so loading them after the critical path keeps first paint lean.
  */
 import dynamic from "next/dynamic";
 

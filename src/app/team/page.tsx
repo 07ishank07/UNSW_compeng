@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getExec } from "@/lib/content";
 import TeamGrid from "@/components/modules/TeamGrid";
 import PageHeader from "@/components/ui/PageHeader";
-import { Reveal } from "@/components/motion/Reveal";
+import { FIELD } from "@/lib/fieldRecipes";
 
 export const metadata: Metadata = {
   title: "Team — CompEngSoc",
@@ -18,10 +18,10 @@ export default async function TeamPage() {
         label="// the-board"
         title="Team"
         subtitle="The founding exec building CompEngSoc from the ground up."
+        signal={{ ...FIELD.purple, shape: "dots", opacity: 0.8, seed: 0 }}
       />
-      <Reveal>
-        <TeamGrid members={members} />
-      </Reveal>
+      {/* TeamGrid owns its stations + per-station batch reveals. */}
+      <TeamGrid members={members} />
     </main>
   );
 }

@@ -71,4 +71,22 @@ export const mockPastEvents = [
     location: "Library Lawn, UNSW Kensington",
     image: null,
   },
+  {
+    _id: "mock-event-past-4",
+    title: "FPGA Crash Course",
+    slug: "fpga-crash-course",
+    eventType: "workshop",
+    startDateTime: "2026-03-12T16:00:00+11:00",
+    location: "Electrical Engineering Building G17, UNSW",
+    image: null,
+  },
+  {
+    _id: "mock-event-past-5",
+    title: "Week 1 Meet & Greet",
+    slug: "week-1-meet-and-greet",
+    eventType: "social",
+    startDateTime: "2026-02-05T13:00:00+11:00",
+    location: "Quadrangle Lawn, UNSW Kensington",
+    image: null,
+  },
 ];

@@ -4,6 +4,10 @@ import type { Metadata } from "next";
 import { getPostBySlug, getPostStaticParams } from "@/lib/content";
 import PostBody from "@/components/modules/PostBody";
 import PageHeader from "@/components/ui/PageHeader";
+import { DuotoneImage } from "@/components/ui/DuotoneImage";
+import { Container } from "@/components/ui/Container";
+import { ScrimPool } from "@/components/ui/ScrimPool";
+import { FIELD } from "@/lib/fieldRecipes";
 
 export function generateStaticParams() {
   return getPostStaticParams();
@@ -47,34 +51,49 @@ export default async function BlogDetailPage({
       <PageHeader
         label={post.category ? `// ${post.category.toUpperCase()}` : "// POST"}
         title={post.title}
+        signal={{ ...FIELD.purple, shape: "warp", opacity: 0.7, seed: 0 }}
       />
-      <div className="px-6 py-10 max-w-3xl">
-        <div className="flex items-center gap-4 mb-8 flex-wrap">
-          <span className="font-mono text-mono-label uppercase tracking-[0.04em] text-ghost">
-            {date}
-          </span>
-          {authorName && (
-            <>
-              <span
-                className="font-mono text-mono-label text-ghost"
-                aria-hidden="true"
-              >
-                ·
-              </span>
-              <span className="font-mono text-mono-label uppercase tracking-[0.04em] text-ghost">
-                {authorName}
-              </span>
-            </>
+      {/* Calm body — the article sits on a content-fitted pool over the shell. */}
+      <Container className="py-12">
+        <ScrimPool className="max-w-3xl p-6 sm:p-8">
+          {post.cover?.asset?._ref && (
+            <DuotoneImage
+              image={post.cover}
+              alt={post.title}
+              duotone="slate"
+              aspectClass="aspect-[3/2]"
+              width={1024}
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="mb-8"
+            />
           )}
-        </div>
-        <PostBody body={post.body} />
-        <Link
-          href="/blog"
-          className="inline-block mt-10 font-mono text-mono-label uppercase tracking-[0.04em] text-ghost hover:text-silk transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
-        >
-          ← All Posts
-        </Link>
-      </div>
+          <div className="mb-8 flex flex-wrap items-center gap-4">
+            <span className="font-mono text-mono-label uppercase text-ink-muted">
+              {date}
+            </span>
+            {authorName && (
+              <>
+                <span
+                  className="font-mono text-mono-label text-ink-muted"
+                  aria-hidden="true"
+                >
+                  ·
+                </span>
+                <span className="font-mono text-mono-label uppercase text-ink-muted">
+                  {authorName}
+                </span>
+              </>
+            )}
+          </div>
+          <PostBody body={post.body} />
+          <Link
+            href="/blog"
+            className="mt-10 inline-block font-mono text-mono-label uppercase text-ink-muted transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-gold motion-reduce:transition-none"
+          >
+            ← All posts
+          </Link>
+        </ScrimPool>
+      </Container>
     </main>
   );
 }
