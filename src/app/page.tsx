@@ -7,11 +7,11 @@ import { Container } from "@/components/ui/Container";
 import TickerBand from "@/components/ui/TickerBand";
 import CopperSeam from "@/components/ui/CopperSeam";
 import AboutSection from "@/components/modules/AboutSection";
-import RecentEventsSection from "@/components/modules/RecentEventsSection";
+import UpcomingEventsSection from "@/components/modules/UpcomingEventsSection";
 import ContactSection from "@/components/modules/ContactSection";
 import { FIELD } from "@/lib/fieldRecipes";
 import { tokens } from "@/lib/design-tokens";
-import { getRecentPastEvents, getSiteSettings } from "@/lib/content";
+import { getHomeEvents, getSiteSettings } from "@/lib/content";
 
 // Fallbacks when the Studio siteSettings doc doesn't (yet) carry these socials.
 const INSTAGRAM_FALLBACK = "https://www.instagram.com/unswcompengsoc/";
@@ -27,9 +27,9 @@ const TICKER_ITEMS = [
 ] as const;
 
 export default async function Home() {
-  const [settings, recentEvents] = await Promise.all([
+  const [settings, homeEvents] = await Promise.all([
     getSiteSettings(),
-    getRecentPastEvents(),
+    getHomeEvents(),
   ]);
   const instagramUrl =
     settings?.socials?.find((s) => s.platform === "instagram")?.url ?? INSTAGRAM_FALLBACK;
@@ -132,7 +132,7 @@ export default async function Home() {
 
       <div className="relative isolate overflow-hidden">
         <SectionField {...FIELD.crimson} shape="wave" opacity={0.8} seed={3.4} />
-        <RecentEventsSection events={recentEvents} />
+        <UpcomingEventsSection events={homeEvents} />
       </div>
 
       <CopperSeam />

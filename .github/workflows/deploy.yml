@@ -1,0 +1,46 @@
+# Deploy to Cloudflare Workers (OpenNext) — docs/deployment.md §5.5 option 1:
+# the site is fully static, so publishing in Sanity Studio fires a
+# repository_dispatch webhook that rebuilds + redeploys; the daily cron
+# re-freezes date-derived state (GROQ now() and the render clock freeze at
+# build on a static site — without it, an event that has passed would stay
+# "Upcoming" until the next publish).
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [sanity-publish]
+  schedule:
+    - cron: "0 14 * * *" # 00:00 AEST / 01:00 AEDT — date-freshness rebuild
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SANITY_PROJECT_ID: ex2of3t7
+      NEXT_PUBLIC_SANITY_DATASET: production
+      NEXT_PUBLIC_SANITY_API_VERSION: "2026-06-01" # quoted — YAML parses bare dates
+      NEXT_PUBLIC_SITE_URL: https://compengsoc.org
+      NEXT_PUBLIC_USE_MOCKS: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check # tsc + eslint + contrast gate before anything ships
+      - run: npm run deploy # predeploy env guard → opennextjs-cloudflare build && deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Link } from "next-view-transitions";
 import type { Metadata } from "next";
 import { getEventBySlug, getEventStaticParams } from "@/lib/content";
+import { formatDateLong, formatTime } from "@/lib/dates";
 import PageHeader from "@/components/ui/PageHeader";
 import { Container } from "@/components/ui/Container";
 import { ScrimPool } from "@/components/ui/ScrimPool";
@@ -31,17 +32,8 @@ export default async function EventDetailPage({
   const event = await getEventBySlug(slug);
   if (!event) notFound();
 
-  const date = new Date(event.startDateTime).toLocaleDateString("en-AU", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-  const time = new Date(event.startDateTime).toLocaleTimeString("en-AU", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZoneName: "short",
-  });
+  const date = formatDateLong(event.startDateTime);
+  const time = formatTime(event.startDateTime);
 
   return (
     <main>

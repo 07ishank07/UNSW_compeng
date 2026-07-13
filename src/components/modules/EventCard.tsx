@@ -1,5 +1,6 @@
 import { Link } from "next-view-transitions";
 import { SplitHeadline } from "@/components/motion/SplitHeadline";
+import { formatDateTime } from "@/lib/dates";
 import type { UpcomingEvent } from "@/lib/types";
 import EventImage from "@/components/ui/EventImage";
 
@@ -18,17 +19,6 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   camp: "CAMP",
   hackathon: "HACKATHON",
 };
-
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString("en-AU", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZoneName: "short",
-  });
-}
 
 /**
  * Upcoming-event views — one large keyboard-reachable <Link>. The colour comes

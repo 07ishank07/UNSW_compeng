@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Link } from "next-view-transitions";
 import type { Metadata } from "next";
 import { getPostBySlug, getPostStaticParams } from "@/lib/content";
+import { formatDateFull } from "@/lib/dates";
 import PostBody from "@/components/modules/PostBody";
 import PageHeader from "@/components/ui/PageHeader";
 import { DuotoneImage } from "@/components/ui/DuotoneImage";
@@ -33,11 +34,7 @@ export default async function BlogDetailPage({
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const date = new Date(post.publishedAt).toLocaleDateString("en-AU", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const date = formatDateFull(post.publishedAt);
 
   const authorName =
     typeof post.author === "string"

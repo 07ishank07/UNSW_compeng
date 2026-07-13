@@ -8,12 +8,14 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import {
   upcomingEventsQuery,
   pastEventsQuery,
-  recentPastEventsQuery,
+  homeEventsQuery,
   eventBySlugQuery,
+  eventSlugsQuery,
   sponsorsQuery,
   execQuery,
   postsQuery,
   postBySlugQuery,
+  postSlugsQuery,
   academicResourcesQuery,
   siteSettingsQuery,
 } from "@/sanity/lib/queries";
@@ -42,13 +44,32 @@ export async function getPastEvents(): Promise<PastEvent[]> {
   return sanityFetch<PastEvent[]>({ query: pastEventsQuery, tags: ["event"] });
 }
 
-export async function getRecentPastEvents(): Promise<PastEvent[]> {
+// Home "Upcoming events" strip: up to 3 — soonest upcoming first, backfilled
+// with the most recent past events. Returns the PastEvent shape; the section
+// derives each card's Upcoming/Recent status from startDateTime at render.
+// The whole site is static, so GROQ now() and the render clock freeze at
+// build — the daily scheduled rebuild (deploy.yml cron) keeps the split honest.
+export async function getHomeEvents(): Promise<PastEvent[]> {
   if (USE_MOCKS) {
-    return [...(mockPastEvents as PastEvent[])]
-      .sort((a, b) => b.startDateTime.localeCompare(a.startDateTime))
-      .slice(0, 3);
+    // Date-filter BOTH mock arrays at call time (not array membership) so the
+    // backfill path keeps working as mock dates age, exactly like live GROQ.
+    // Numeric epoch sorts — mock ISO strings mix +10:00/+11:00 offsets, so
+    // string order is not chronological order.
+    const now = Date.now();
+    const all = [...mockUpcomingEvents, ...mockPastEvents] as PastEvent[];
+    const upcoming = all
+      .filter((e) => Date.parse(e.startDateTime) >= now)
+      .sort((a, b) => Date.parse(a.startDateTime) - Date.parse(b.startDateTime));
+    const recent = all
+      .filter((e) => Date.parse(e.startDateTime) < now)
+      .sort((a, b) => Date.parse(b.startDateTime) - Date.parse(a.startDateTime));
+    return [...upcoming, ...recent].slice(0, 3);
   }
-  return sanityFetch<PastEvent[]>({ query: recentPastEventsQuery, tags: ["event"] });
+  const { upcoming, recent } = await sanityFetch<{
+    upcoming: PastEvent[];
+    recent: PastEvent[];
+  }>({ query: homeEventsQuery, tags: ["event"] });
+  return [...(upcoming ?? []), ...(recent ?? [])].slice(0, 3);
 }
 
 export async function getEventBySlug(slug: string): Promise<EventDetail | null> {
@@ -81,13 +102,14 @@ export async function getEventBySlug(slug: string): Promise<EventDetail | null> 
   });
 }
 
-export function getEventStaticParams(): Array<{ slug: string }> {
+export async function getEventStaticParams(): Promise<Array<{ slug: string }>> {
   if (USE_MOCKS) {
     return [...mockUpcomingEvents, ...mockPastEvents].map((e) => ({
       slug: e.slug,
     }));
   }
-  return [];
+  const slugs = await sanityFetch<string[]>({ query: eventSlugsQuery, tags: ["event"] });
+  return (slugs ?? []).map((slug) => ({ slug }));
 }
 
 export async function getSponsors(): Promise<Sponsor[]> {
@@ -126,9 +148,10 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
   });
 }
 
-export function getPostStaticParams(): Array<{ slug: string }> {
+export async function getPostStaticParams(): Promise<Array<{ slug: string }>> {
   if (USE_MOCKS) return mockPosts.map((p) => ({ slug: p.slug }));
-  return [];
+  const slugs = await sanityFetch<string[]>({ query: postSlugsQuery, tags: ["post"] });
+  return (slugs ?? []).map((slug) => ({ slug }));
 }
 
 export async function getAcademicResources(): Promise<AcademicResource[]> {

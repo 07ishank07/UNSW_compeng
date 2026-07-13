@@ -60,7 +60,7 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 
 **SUCCESS**
 - All content is fetched server-side in Server Components via a single typed `sanityFetch` wrapper that sets **cache tags** per content type; `useCdn: true` for published reads.
-- A **webhook → `/api/revalidate`** route validates the Sanity signature and revalidates the affected tag/path, so publishing in Studio updates the live site **without a redeploy** (on-demand ISR). A sane time-based `revalidate` fallback exists.
+- Publishing in Studio updates the live site **without manual intervention**: the shipped architecture (docs/deployment.md §5.5 option 1) has the Sanity webhook fire a `repository_dispatch` → GitHub Actions rebuild + redeploy (~1–2 min), plus a daily scheduled rebuild that re-derives date-dependent state (the upcoming/past split freezes at build on a static site). Fetch cache **tags are retained** on every `sanityFetch` call so a future on-demand ISR path (§5.5 option 3) can revive `/api/revalidate` without touching call sites.
 - GROQ queries are centralised in one `queries.ts`, parameterised (no string interpolation of user input), and request only the fields a view needs.
 - Fetched data is validated/narrowed at the boundary (Zod or generated Sanity types) so a malformed/empty document can never crash a render — empty/partial states render the machine-voice empty/error copy from §0.2.7.
 - Draft/preview is gated behind a server-only token and never exposes the write token to the client.
@@ -69,7 +69,7 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 - The Sanity **write token** or **revalidate secret** is referenced in any client component or shipped in `NEXT_PUBLIC_*`.
 - A missing field, empty result, or fetch error throws and white-screens a route instead of showing the designed empty/error state.
 - Schema field names in code drift from the schema definitions (a query asks for a field that no longer exists) — this is a hard mismatch and must fail loudly in dev, not silently render blanks.
-- The revalidate route accepts unsigned requests.
+- The publish→deploy pipeline can be triggered by an unauthenticated caller (the `repository_dispatch` endpoint requires the fine-grained PAT held only in the Sanity webhook config; deploy credentials live only in GitHub repo secrets).
 
 ## 2.5 Responsiveness & accessibility (the quality floor)
 

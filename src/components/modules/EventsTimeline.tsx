@@ -1,4 +1,5 @@
 import { Link } from "next-view-transitions";
+import { formatDate } from "@/lib/dates";
 import type { PastEvent, UpcomingEvent } from "@/lib/types";
 import EventCard from "@/components/modules/EventCard";
 import { Reveal } from "@/components/motion/Reveal";
@@ -12,14 +13,6 @@ type Props = {
   upcoming: UpcomingEvent[];
   past: PastEvent[];
 };
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-AU", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 /**
  * Events timeline — two separated stations, each with its OWN field (SIGNAL

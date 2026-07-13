@@ -151,13 +151,13 @@ Same as before: society-owned GitHub org, not a personal account, `main` protect
 ### 5.4.2 Cloudflare account & Worker
 1. Create the Cloudflare account under a **society-owned identity** — your Google Workspace gives you exactly this (e.g. `webmaster@compengsoc.org`). Don't use a personal account.
 2. `npx wrangler login`, then `npm run deploy` once locally to create the Worker and confirm it builds.
-3. Set production secrets (these are Worker secrets, not plain vars — they don't show up in the dashboard in plaintext):
+3. **No Worker secrets are needed on the shipped path.** The site does published/public reads only (`useCdn: true`, `perspective: "published"` — no token), and there is no `/api/revalidate` route (option 1, §5.5). The commands below are for the FUTURE paths only — a draft-preview mode or on-demand ISR:
    ```bash
-   npx wrangler secret put SANITY_API_READ_TOKEN
-   npx wrangler secret put SANITY_REVALIDATE_SECRET
+   npx wrangler secret put SANITY_API_READ_TOKEN     # only if draft preview is ever built
+   npx wrangler secret put SANITY_REVALIDATE_SECRET  # only if option 3 (on-demand ISR) is adopted
    ```
-   Public values (`NEXT_PUBLIC_*`) go in `wrangler.jsonc` under `"vars"` since they're not secret.
-4. Connect the GitHub repo for automatic deploys on push (Cloudflare dashboard → Workers & Pages → your Worker → Settings → Build → connect repository), or run `npm run deploy` from CI (GitHub Actions) with a Cloudflare API token as a repo secret — either is fine; pick one and document which in the README.
+   Public values (`NEXT_PUBLIC_*`) go in `wrangler.jsonc` under `"vars"` since they're not secret (already committed there).
+4. **Decision (2026-07): CI is `.github/workflows/deploy.yml`** (GitHub Actions — push to `main`, Sanity `repository_dispatch`, daily cron, manual trigger), not the dashboard build-connect. It needs `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` as GitHub repo secrets — see §5.6.
 
 ### 5.4.3 Custom domain
 This part is genuinely simpler than the Vercel version:
@@ -170,7 +170,7 @@ This part is genuinely simpler than the Vercel version:
 
 What the webhook does depends on which option from §5.5 you're running:
 
-- **Default (static + redeploy-on-publish):** the webhook doesn't hit `/api/revalidate` at all — it triggers a **GitHub Actions workflow** (`sanity.io/manage` → API → Webhooks → URL is your repo's `repository_dispatch` or a Cloudflare Deploy Hook URL, not an app route) that runs `npm run deploy`. No `SANITY_REVALIDATE_SECRET`/signature verification needed for this path; the secret-bearing thing is the GitHub Actions trigger token instead, stored as a GitHub repo secret, not a Worker secret.
+- **Default (static + redeploy-on-publish — SHIPPED):** the webhook doesn't hit `/api/revalidate` at all — it POSTs a **`repository_dispatch`** (event type `sanity-publish`) to the GitHub API, which runs `.github/workflows/deploy.yml`. No `SANITY_REVALIDATE_SECRET`/signature verification needed for this path; the secret-bearing thing is the fine-grained GitHub PAT inside the webhook's `Authorization` header. Exact webhook config in §5.6 step 6.
 - **Time-based:** skip the webhook entirely — content updates appear within whatever `revalidate: N` you set on each fetch, no webhook of any kind needed.
 - **Full on-demand:** the webhook setup in Sanity (`sanity.io/manage` → API → Webhooks → URL `https://compengsoc.org/api/revalidate`, secret = `SANITY_REVALIDATE_SECRET`) is unchanged from the original Vercel version — the route's *application code* (verify signature → `revalidateTag`/`revalidatePath`) doesn't change between hosts. What changes is purely the infrastructure underneath those calls, which is the R2 + Durable Object setup in §5.2. See the addendum at the end of `docs/reference-implementations.md`.
 
@@ -184,3 +184,52 @@ Three options, in order of recommendation for this project:
 1. **Static + redeploy-on-publish (default — start here).** No `revalidate` on fetches, no R2, no Durable Objects. The Sanity webhook triggers a GitHub Actions rebuild instead of an in-place cache update. Zero Cloudflare storage bindings to configure or maintain; a future tech lead who's never touched Workers can still understand "publishing triggers a rebuild." Cost: roughly a minute of staleness after publishing, not true zero.
 2. **Time-based revalidation.** Adds an R2 bucket + a Durable Object queue (no tag cache, no webhook needed). Content goes stale and silently re-renders in the background every `revalidate: N` seconds. Slightly less infrastructure to reason about than full on-demand, but still real infrastructure — pick this only if a 30–60 second staleness window without a rebuild step specifically matters to you.
 3. **Full on-demand revalidation (instant updates after publishing).** Adds the R2 bucket, the Durable Object queue, *and* the Durable Object sharded tag cache, wired to the `/api/revalidate` webhook. Most infrastructure, least staleness. For a society site updated by rotating, non-technical execs a few times a week, this is very unlikely to be worth the extra moving parts — default to option 1, and only reach for this if it turns out to matter in practice.
+
+## 5.6 Launch runbook (2026-07, as built — free tier, custom domain)
+
+The repo side is done: `wrangler.jsonc` carries the public `vars`, `.github/workflows/deploy.yml` deploys on push / Sanity publish / daily cron / manual trigger, `npm run deploy` is guarded by `scripts/assert-deploy-env.mjs` (blocks a build with `NEXT_PUBLIC_USE_MOCKS=true` or a non-https `NEXT_PUBLIC_SITE_URL`), and live builds prerender every event/blog detail page (static assets are free and unmetered on Workers; the Worker itself only runs for unknown-slug fallbacks and the `/studio` shell). What remains is account wiring — do these IN ORDER:
+
+> **State as of 2026-07 (verified by DNS lookup):** `compengsoc.org` is **already an active Cloudflare zone** (nameservers `ace`/`adel.ns.cloudflare.com`) with **working Google Workspace email** (`MX → smtp.google.com`, `google-site-verification` TXT present) and **no apex A record yet**. So the zone-add + nameserver-cutover + email-migration steps are already done — skip them. The Worker must be deployed **into the same Cloudflare account that holds this zone**, or the Custom Domain can't attach.
+
+0. **Credentials — use a scoped token, NOT the Global API Key.** The Cloudflare **Global API Key** grants full, account-wide access (DNS, billing, every zone) and must never go in CI secrets or a config file. Two safe credentials replace it:
+   - **Local:** `npx wrangler login` (browser OAuth) — no key needed at all.
+   - **CI:** a **scoped API token** — dashboard → My Profile → API Tokens → Create Token → **"Edit Cloudflare Workers"** template → set *Account Resources* to the account holding `compengsoc.org`. That token is the only Cloudflare credential GitHub needs.
+   If the account was shared with you, make sure you're an actual **member** of it (so `wrangler login` and the token see the right account); don't operate via someone else's Global API Key.
+1. **Repo state.** Merge this work to `main` (don't push until step 3's secrets exist, or accept one red Actions run). `npm run check` must be green.
+2. **First deploy (local).** Confirm you can see `compengsoc.org` in the target account's dashboard, then:
+   ```powershell
+   npx wrangler login          # pick the account that owns compengsoc.org
+   # temporarily flip .env.local: NEXT_PUBLIC_USE_MOCKS=false, NEXT_PUBLIC_SITE_URL=https://compengsoc.org
+   npm run deploy              # predeploy guard verifies env, then builds + creates the Worker
+   ```
+   Note the `https://compengsoc.<account>.workers.dev` URL and the gzip worker size `wrangler` prints (must stay < 3 MiB on free). Flip `.env.local` back to mocks for everyday dev.
+3. **GitHub Actions secrets.** Repo → Settings → Secrets and variables → Actions:
+   - `CLOUDFLARE_API_TOKEN` — the scoped token from step 0 (**not** the Global API Key).
+   - `CLOUDFLARE_ACCOUNT_ID` — dashboard → Workers & Pages → the account holding the zone; the ID is in the right rail (and in the dashboard URL). Must be the same account you deployed into in step 2.
+   Then run the `deploy` workflow by hand (Actions → deploy → Run workflow) and confirm it goes green.
+4. **Attach the custom domain.** The zone already exists, so this is one screen: Worker → Settings → Domains & Routes → Add → **Custom Domain** → `compengsoc.org` (repeat for `www`, or add a redirect rule). Cloudflare creates a **proxied record for the apex and issues the cert automatically** — this is a *different record type* from the `MX`, so **email is untouched** as long as you don't delete the existing `MX` / `google-site-verification` / SPF records in the DNS tab. Verify with `Resolve-DnsName compengsoc.org` (an apex record now appears) and load `https://compengsoc.org/studio`.
+5. **Sanity CORS.** `sanity.io/manage` → project `ex2of3t7` → API → CORS origins: add `https://compengsoc.org` (+ `https://www.compengsoc.org` if used) and the `workers.dev` URL from step 2, **with credentials allowed** (the embedded Studio authenticates from the browser). `http://localhost:3000` should already be there for local dev.
+6. **Sanity webhook → GitHub rebuild.** `sanity.io/manage` → project → API → Webhooks → Create:
+   - **URL:** `https://api.github.com/repos/07ishank07/UNSW_compeng/dispatches` (update owner/repo after the org handover)
+   - **Dataset:** `production` · **Trigger on:** create, update, delete
+   - **Filter:** `_type in ["event","sponsor","execMember","post","academicResource","siteSettings"]`
+   - **Projection:** `{"event_type": "sanity-publish"}`
+   - **HTTP method:** POST · **HTTP headers:**
+     - `Content-Type: application/json`
+     - `Accept: application/vnd.github+json`
+     - `X-GitHub-Api-Version: 2022-11-28`
+     - `Authorization: Bearer <fine-grained PAT>` — create at GitHub → Settings → Developer settings → Fine-grained tokens; scope it to THIS repo only with **Contents: Read and write**; set the longest expiry and put the rotation date in the handover calendar.
+   - **Test:** publish any trivial edit in Studio → an Actions run appears within seconds → change is live in ~1–2 minutes.
+7. **Editors.** Invite exec as Sanity project members (Editor role — 3 seats on the free plan, §3.8 of the schema doc). They edit at `https://compengsoc.org/studio`; hitting **Publish** is what triggers the rebuild.
+8. **Free-tier limits — what we actually consume.** (Re-verify numbers against Cloudflare's docs at launch.)
+
+   | Workers Free limit | Value | This site's exposure |
+   |---|---|---|
+   | Requests | 100k/day | Static asset hits are **free and unmetered**; the Worker only runs for non-prerendered paths (unknown slugs, `/studio` shell) — trivial volume |
+   | CPU time | 10 ms/request | Site is fully static (every page prerendered at build); if `Exceeded CPU Limit` ever shows in `wrangler tail` → Workers Paid $5/mo raises it to 30 s |
+   | Worker size | 3 MiB gzip | Server bundle only (Studio JS ships as client-side static assets); read the size `npm run deploy` prints — Paid raises to 10 MiB if ever needed |
+   | GitHub Actions | free (public repo unmetered; 2 000 min/mo private) | ~3–5 min per deploy; daily cron + a few publishes/week sits far inside |
+   | Sanity free plan | 3 seats, generous API/CDN quota | published reads go through Sanity's CDN; builds query a handful of times per day |
+
+   The **daily cron** in `deploy.yml` (00:00 AEST) is not optional polish: the site is fully static, so the upcoming/past event split is frozen at build time — the nightly rebuild is what moves yesterday's event out of "Upcoming" without waiting for someone to publish.
+9. **Handover.** Transfer the Cloudflare account, GitHub org, and Sanity organisation to society-owned credentials (§5.4.5), hand over the PAT rotation date, and point the new tech lead at this section.

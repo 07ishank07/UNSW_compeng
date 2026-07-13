@@ -26,6 +26,12 @@ compengsoc/
 ├── open-next.config.ts            # Cloudflare adapter config: which cache/queue/tag-cache implementation to use. (docs/deployment.md §5.2)
 ├── wrangler.jsonc                 # Worker config: name, compatibility flags, R2/Durable Object bindings, custom domain routing. (§5.2)
 ├── .dev.vars                      # GIT-IGNORED. Local mirror of .env.local for `wrangler dev`/preview (Workers-runtime-only secrets surface).
+├── assets/                        # Design sources (not web-served — public/ carries the exported rasters).
+│   └── Logo_circle_ink.svg        # THE vector logo source of record. scripts/generate-brand-assets.mjs derives every raster from it.
+├── .github/
+│   └── workflows/
+│       └── deploy.yml             # CI deploy: push to main / Sanity repository_dispatch / daily cron (re-freezes the
+│                                  # upcoming-past event split on the static site) / manual. Runs check → deploy. (§5.6)
 │
 ├── public/                        # Static assets served as-is at the web root. No build step. Keep it lean.
 │   ├── fonts/                     # Self-hosted variable/static font files (Clash Display, Switzer, JetBrains Mono).
@@ -44,9 +50,14 @@ compengsoc/
 │   ├── icon.svg                   # Maskable app icon (the CompEngSoc mark).
 │   └── _headers                   # Cloudflare edge cache rules for /_next/static/* (long-cache, immutable). (§5.2)
 │
-├── scripts/
-│   └── seed.ts                    # One-off Node script: pushes data/mocks/* into a DEV dataset via a write token.
-│                                  # Run manually for a populated playground; never part of the production build.
+├── scripts/                       # Node tooling; never part of the shipped bundle.
+│   ├── contrast.mjs               # npm run check:contrast — palette-mirror + WCAG contrast gate (blocks merge).
+│   ├── perf-probe.mjs             # Screenshots + scroll-fps probe against a running server (playwright-core, installed Chrome).
+│   ├── generate-brand-assets.mjs  # npm run brand-assets — regenerates logo.png / icon.png / favicon.ico / default-og.png
+│   │                              # from assets/Logo_circle_ink.svg (the committed vector source of record).
+│   ├── assert-deploy-env.mjs      # predeploy guard — blocks `npm run deploy` when NEXT_PUBLIC_USE_MOCKS=true or
+│   │                              # NEXT_PUBLIC_SITE_URL isn't https (Next env precedence: .env.local beats .env.production).
+│   └── seed.ts                    # (FUTURE — not built) pushes data/mocks/* into a DEV dataset via a write token.
 │
 └── src/
     ├── app/                       # Next.js App Router. Folders = routes; special files = layout/page/route/error/loading.
@@ -86,7 +97,9 @@ compengsoc/
     │   │
     │   └── api/
     │       └── revalidate/
-    │           └── route.ts        # POST webhook from Sanity. Verifies signature, revalidates affected tag/path. (§A.4)
+    │           └── route.ts        # (NOT BUILT — by decision.) Shipped architecture is deployment.md §5.5 option 1:
+    │                               # publishing fires a repository_dispatch → GitHub Actions rebuild. This route only
+    │                               # returns if option 3 (on-demand ISR) is ever adopted. (§A.4 has the reference code.)
     │
     ├── sanity/                     # All CMS code (schemas, client, queries). Mirrors §3. No React UI here except Studio embed.
     │   ├── env.ts                  # Validated env access (projectId, dataset, apiVersion, server-only readToken). (§3.1)
@@ -161,8 +174,8 @@ compengsoc/
     ├── lib/                         # Framework-agnostic TypeScript utilities + constants. No React, no DOM where avoidable.
     │   ├── easing.ts                # The `energize` cubic-bezier/CustomEase definition + named durations. Single motion vocabulary.
     │   ├── design-tokens.ts         # TS mirror of the CSS tokens (hex values) for use inside shaders/canvas (which can't read CSS vars).
-    │   ├── format.ts                # Date/time formatters (en-AU), the mono "address" formatter for course codes, etc.
-    │   ├── event-status.ts          # Pure fn: given startDateTime -> "upcoming" | "live" | "past". Used by the timeline.
+    │   ├── dates.ts                 # BUILT (subsumes the planned format.ts + event-status.ts): en-AU date/time formatters
+    │   │                            # pinned to Australia/Sydney (UTC CI builds must not shift calendar dates) + isUpcoming().
     │   └── utils.ts                 # cn() classname merge + small generic helpers. Keep tiny; resist a junk-drawer.
     │
     ├── types/                       # Shared TypeScript types.

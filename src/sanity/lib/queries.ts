@@ -23,23 +23,28 @@ export const pastEventsQuery = groq`
     _id, title, "slug": slug.current, eventType, startDateTime, location, "image": heroImage${image}
   }`;
 
-// Home-page "Recent events" strip — recency, NOT the featured flag.
-export const recentPastEventsQuery = groq`
-  *[_type == "event" && startDateTime < now()] | order(startDateTime desc)[0...3]{
+// Home "Upcoming events" strip — one round trip: up to 3 soonest upcoming plus
+// up to 3 most-recent past for backfill; the getter merges and caps at 3. Both
+// arms project the PastEvent shape (the subset both card states render).
+export const homeEventsQuery = groq`{
+  "upcoming": *[_type == "event" && startDateTime >= now()] | order(startDateTime asc)[0...3]{
     _id, title, "slug": slug.current, eventType, startDateTime, location, "image": heroImage${image}
-  }`;
-
-export const featuredEventsQuery = groq`
-  *[_type == "event" && featured == true && startDateTime >= now()]
-    | order(startDateTime asc)[0...3]{
-      _id, title, "slug": slug.current, eventType, startDateTime, location
-    }`;
+  },
+  "recent": *[_type == "event" && startDateTime < now()] | order(startDateTime desc)[0...3]{
+    _id, title, "slug": slug.current, eventType, startDateTime, location, "image": heroImage${image}
+  }
+}`;
 
 export const eventBySlugQuery = groq`
   *[_type == "event" && slug.current == $slug][0]{
     _id, title, eventType, startDateTime, endDateTime, location,
     shortDescription, body, ticketUrl, capacity, "image": heroImage${image}
   }`;
+
+// Slugs for generateStaticParams + the sitemap — live builds prerender every
+// detail page (static assets are free/unmetered on Workers; SSR is not).
+export const eventSlugsQuery = groq`*[_type == "event" && defined(slug.current)].slug.current`;
+export const postSlugsQuery = groq`*[_type == "post" && defined(slug.current)].slug.current`;
 
 // Tiers removed — one equal rail, ranked only by the manual `order` field.
 export const sponsorsQuery = groq`

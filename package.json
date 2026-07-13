@@ -9,7 +9,9 @@
     "lint": "eslint",
     "check": "tsc --noEmit && eslint && node scripts/contrast.mjs",
     "check:contrast": "node scripts/contrast.mjs",
+    "brand-assets": "node scripts/generate-brand-assets.mjs",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "predeploy": "node scripts/assert-deploy-env.mjs",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },

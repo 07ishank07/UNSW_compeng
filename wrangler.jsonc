@@ -2,12 +2,22 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
   "name": "compengsoc",
-  // Pin to the date you actually deploy and re-verify against the installed
-  // workerd before relying on it (docs/deployment.md §5.2).
-  "compatibility_date": "2025-09-23",
+  // Pinned at launch prep (2026-07). `npm run preview` validates it against the
+  // installed workerd before any deploy relies on it (docs/deployment.md §5.2).
+  "compatibility_date": "2026-07-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" }
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   // Static + redeploy path (open-next.config.ts) needs no R2 / Durable Object
-  // bindings. Public NEXT_PUBLIC_* values go here under "vars"; secrets
-  // (SANITY_API_READ_TOKEN, SANITY_REVALIDATE_SECRET) via `wrangler secret put`.
+  // bindings. These vars are the request-time mirror of the NEXT_PUBLIC_*
+  // values `next build` inlines (the rare dynamic render — unknown-slug SSR
+  // fallback, the /studio shell — reads process.env at runtime). Public by
+  // definition; a secret would go through `wrangler secret put` instead (none
+  // are needed on this path — no read token, no revalidate route).
+  "vars": {
+    "NEXT_PUBLIC_SANITY_PROJECT_ID": "ex2of3t7",
+    "NEXT_PUBLIC_SANITY_DATASET": "production",
+    "NEXT_PUBLIC_SANITY_API_VERSION": "2026-06-01",
+    "NEXT_PUBLIC_SITE_URL": "https://compengsoc.org",
+    "NEXT_PUBLIC_USE_MOCKS": "false"
+  }
 }

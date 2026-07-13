@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated OpenNext (Cloudflare) build output:
     ".open-next/**",
+    // Wrangler's local build/preview scratch (dev bundles, workerd temp) —
+    // huge generated files that otherwise get linted and can OOM eslint.
+    ".wrangler/**",
   ]),
 ]);
 

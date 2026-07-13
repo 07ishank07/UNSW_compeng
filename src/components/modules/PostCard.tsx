@@ -1,4 +1,5 @@
 import { Link } from "next-view-transitions";
+import { formatDateCompact } from "@/lib/dates";
 import type { Post } from "@/lib/types";
 
 type Props = { post: Post };
@@ -10,14 +11,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   opportunity: "OPPORTUNITY",
 };
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-AU", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
 export default function PostCard({ post }: Props) {
   return (
     <Link
@@ -26,7 +19,7 @@ export default function PostCard({ post }: Props) {
     >
       <div className="mb-2 flex flex-wrap items-center gap-3">
         <span className="font-mono text-mono-label uppercase text-ink-muted">
-          {formatDate(post.publishedAt)}
+          {formatDateCompact(post.publishedAt)}
         </span>
         {post.category && (
           <>
