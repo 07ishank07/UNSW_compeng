@@ -36,7 +36,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # 24 = same major as local dev — npm 11 lockfiles fail `npm ci` under
+          # npm 10/node 22 ("Missing: @emnapi/runtime from lock file").
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run check # tsc + eslint + contrast gate before anything ships
