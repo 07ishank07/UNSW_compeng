@@ -21,7 +21,7 @@ compengsoc/
 ├── .env.local                     # SECRETS + project IDs. GIT-IGNORED. Never committed. (Contents documented in .env.example.)
 ├── .env.example                   # Committed template of every env var with placeholder values. Keep in sync with code.
 ├── .gitignore                     # Ignores .env.local, node_modules, .next, dist, .sanity, coverage, etc.
-├── sanity.config.ts               # Studio config (defineConfig): plugins, schema, basePath "/studio". (§3.2)
+├── sanity.config.ts               # Studio config (defineConfig) — used by the STANDALONE Studio deploy (compengsoc.sanity.studio). (§3.2)
 ├── sanity.cli.ts                  # Sanity CLI/deploy config (defineCliConfig): projectId, dataset, autoUpdates. (§3.3)
 ├── open-next.config.ts            # Cloudflare adapter config: which cache/queue/tag-cache implementation to use. (docs/deployment.md §5.2)
 ├── wrangler.jsonc                 # Worker config: name, compatibility flags, R2/Durable Object bindings, custom domain routing. (§5.2)
@@ -71,7 +71,7 @@ compengsoc/
     │   ├── not-found.tsx          # 404 in the board aesthetic ("// address not mapped").
     │   ├── loading.tsx            # Root loading skeleton (boot stripe) shown during server fetch / streaming.
     │   ├── sitemap.ts             # Generates sitemap from Sanity slugs (events, posts) + static routes.
-    │   ├── robots.ts              # robots.txt (allow all; point to sitemap). Disallow /studio from indexing.
+    │   ├── robots.ts              # robots.txt (allow all; point to sitemap).
     │   │
     │   ├── about/
     │   │   └── page.tsx           # /about. Static About copy (§1.2) + pulls tagline/socials from siteSettings.
@@ -90,18 +90,13 @@ compengsoc/
     │   ├── team/
     │   │   └── page.tsx           # /team. Server-fetches execs; renders <BoardRoster/>.
     │   │
-    │   ├── studio/
-    │   │   └── [[...tool]]/
-    │   │       ├── page.tsx        # Embedded Sanity Studio. 'use client'; renders <NextStudio config={config}/>.
-    │   │       └── layout.tsx      # Bare layout for Studio (no site Nav/Footer/cursor; sets viewport metadata).
-    │   │
     │   └── api/
     │       └── revalidate/
     │           └── route.ts        # (NOT BUILT — by decision.) Shipped architecture is deployment.md §5.5 option 1:
     │                               # publishing fires a repository_dispatch → GitHub Actions rebuild. This route only
     │                               # returns if option 3 (on-demand ISR) is ever adopted. (§A.4 has the reference code.)
     │
-    ├── sanity/                     # All CMS code (schemas, client, queries). Mirrors §3. No React UI here except Studio embed.
+    ├── sanity/                     # All CMS code (schemas, client, queries). Mirrors §3. No React UI here.
     │   ├── env.ts                  # Validated env access (projectId, dataset, apiVersion, server-only readToken). (§3.1)
     │   ├── structure.ts            # Curated Studio desk / document grouping. (§3.4)
     │   ├── lib/
@@ -150,7 +145,7 @@ compengsoc/
     │   │
     │   ├── ui/                      # Structural, ALWAYS-interactive primitives. Never decorative-only. Server-safe where possible.
     │   │   ├── Nav.tsx              # Top navigation. Keyboard-operable, visible focus, mobile menu. Sits above decorative layers.
-    │   │   ├── Footer.tsx           # Silkscreen footer: copyright, socials, discreet /studio link, build stamp.
+    │   │   ├── Footer.tsx           # Silkscreen footer: copyright, socials, discreet standalone-Studio link, build stamp.
     │   │   ├── Button.tsx           # The ENIG-gold "pad" CTA. Renders <a> or <button>; energize on hover; focus ring.
     │   │   ├── LearnMoreButton.tsx  # The mandatory home CTA -> UNSW Computer Engineering URL (new tab, rel=noopener).
     │   │   ├── Tag.tsx              # Mono "machine-voice" label/chip (event type, category, tier voltage).

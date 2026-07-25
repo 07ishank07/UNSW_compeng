@@ -164,7 +164,7 @@ This part is genuinely simpler than the Vercel version:
 1. Add `compengsoc.org` as a zone in Cloudflare (Websites → Add a site). Cloudflare scans your existing DNS — **verify your Google Workspace MX and SPF/TXT records came across correctly** before you cut over nameservers, or society email breaks silently.
 2. At your registrar, replace the nameservers with the two Cloudflare-assigned ones shown during onboarding.
 3. Once the zone is active: Worker → Settings → **Domains & Routes** → Add → Custom Domain → enter `compengsoc.org`. Cloudflare creates the DNS record and issues the certificate automatically — no manual A-record/anycast-IP step. Repeat for `www.compengsoc.org` if you want both, or set up a redirect rule from one to the other (Cloudflare's redirect rules need a proxied placeholder DNS record on the hostname you're redirecting *from* — see Cloudflare's redirect-rules docs if you go this route).
-4. Confirm with `dig compengsoc.org +short` and load `https://compengsoc.org/studio` once DNS propagates.
+4. Confirm with `dig compengsoc.org +short` and load `https://compengsoc.org` once DNS propagates.
 
 ### 5.4.4 Sanity webhook → what it triggers
 
@@ -187,7 +187,7 @@ Three options, in order of recommendation for this project:
 
 ## 5.6 Launch runbook (2026-07, as built — free tier, custom domain)
 
-The repo side is done: `wrangler.jsonc` carries the public `vars`, `.github/workflows/deploy.yml` deploys on push / Sanity publish / daily cron / manual trigger, `npm run deploy` is guarded by `scripts/assert-deploy-env.mjs` (blocks a build with `NEXT_PUBLIC_USE_MOCKS=true` or a non-https `NEXT_PUBLIC_SITE_URL`), and live builds prerender every event/blog detail page (static assets are free and unmetered on Workers; the Worker itself only runs for unknown-slug fallbacks and the `/studio` shell). What remains is account wiring — do these IN ORDER:
+The repo side is done: `wrangler.jsonc` carries the public `vars`, `.github/workflows/deploy.yml` deploys on push / Sanity publish / daily cron / manual trigger, `npm run deploy` is guarded by `scripts/assert-deploy-env.mjs` (blocks a build with `NEXT_PUBLIC_USE_MOCKS=true` or a non-https `NEXT_PUBLIC_SITE_URL`), and live builds prerender every event/blog detail page (static assets are free and unmetered on Workers; the Worker itself only runs for unknown-slug fallbacks). What remains is account wiring — do these IN ORDER:
 
 > **State as of 2026-07 (verified by DNS lookup):** `compengsoc.org` is **already an active Cloudflare zone** (nameservers `ace`/`adel.ns.cloudflare.com`) with **working Google Workspace email** (`MX → smtp.google.com`, `google-site-verification` TXT present) and **no apex A record yet**. So the zone-add + nameserver-cutover + email-migration steps are already done — skip them. The Worker must be deployed **into the same Cloudflare account that holds this zone**, or the Custom Domain can't attach.
 
@@ -207,8 +207,8 @@ The repo side is done: `wrangler.jsonc` carries the public `vars`, `.github/work
    - `CLOUDFLARE_API_TOKEN` — the scoped token from step 0 (**not** the Global API Key).
    - `CLOUDFLARE_ACCOUNT_ID` — dashboard → Workers & Pages → the account holding the zone; the ID is in the right rail (and in the dashboard URL). Must be the same account you deployed into in step 2.
    Then run the `deploy` workflow by hand (Actions → deploy → Run workflow) and confirm it goes green.
-4. **Attach the custom domain.** The zone already exists, so this is one screen: Worker → Settings → Domains & Routes → Add → **Custom Domain** → `compengsoc.org` (repeat for `www`, or add a redirect rule). Cloudflare creates a **proxied record for the apex and issues the cert automatically** — this is a *different record type* from the `MX`, so **email is untouched** as long as you don't delete the existing `MX` / `google-site-verification` / SPF records in the DNS tab. Verify with `Resolve-DnsName compengsoc.org` (an apex record now appears) and load `https://compengsoc.org/studio`.
-5. **Sanity CORS.** `sanity.io/manage` → project `ex2of3t7` → API → CORS origins: add `https://compengsoc.org` (+ `https://www.compengsoc.org` if used) and the `workers.dev` URL from step 2, **with credentials allowed** (the embedded Studio authenticates from the browser). `http://localhost:3000` should already be there for local dev.
+4. **Attach the custom domain.** The zone already exists, so this is one screen: Worker → Settings → Domains & Routes → Add → **Custom Domain** → `compengsoc.org` (repeat for `www`, or add a redirect rule). Cloudflare creates a **proxied record for the apex and issues the cert automatically** — this is a *different record type* from the `MX`, so **email is untouched** as long as you don't delete the existing `MX` / `google-site-verification` / SPF records in the DNS tab. Verify with `Resolve-DnsName compengsoc.org` (an apex record now appears) and load `https://compengsoc.org`.
+5. **Sanity CORS.** `sanity.io/manage` → project `ex2of3t7` → API → CORS origins: add `https://compengsoc.org` (+ `https://www.compengsoc.org` if used) and the `workers.dev` URL from step 2, **with credentials allowed** (legacy of the embedded Studio — harmless to keep; the standalone Studio's `*.sanity.studio` origin is allowed by Sanity automatically). `http://localhost:3000` should already be there for local dev.
 6. **Sanity webhook → GitHub rebuild.** `sanity.io/manage` → project → API → Webhooks → Create:
    - **URL:** `https://api.github.com/repos/07ishank07/UNSW_compeng/dispatches` (update owner/repo after the org handover)
    - **Dataset:** `production` · **Trigger on:** create, update, delete
@@ -220,14 +220,14 @@ The repo side is done: `wrangler.jsonc` carries the public `vars`, `.github/work
      - `X-GitHub-Api-Version: 2022-11-28`
      - `Authorization: Bearer <fine-grained PAT>` — create at GitHub → Settings → Developer settings → Fine-grained tokens; scope it to THIS repo only with **Contents: Read and write**; set the longest expiry and put the rotation date in the handover calendar.
    - **Test:** publish any trivial edit in Studio → an Actions run appears within seconds → change is live in ~1–2 minutes.
-7. **Editors.** Invite exec as Sanity project members (Editor role — 3 seats on the free plan, §3.8 of the schema doc). They edit at `https://compengsoc.org/studio`; hitting **Publish** is what triggers the rebuild.
+7. **Editors.** Invite exec as Sanity project members (Editor role — 3 seats on the free plan, §3.8 of the schema doc). They edit at `https://compengsoc.sanity.studio`; hitting **Publish** is what triggers the rebuild.
 8. **Free-tier limits — what we actually consume.** (Re-verify numbers against Cloudflare's docs at launch.)
 
    | Workers Free limit | Value | This site's exposure |
    |---|---|---|
-   | Requests | 100k/day | Static asset hits are **free and unmetered**; the Worker only runs for non-prerendered paths (unknown slugs, `/studio` shell) — trivial volume |
+   | Requests | 100k/day | Static asset hits are **free and unmetered**; the Worker only runs for non-prerendered paths (unknown slugs) — trivial volume |
    | CPU time | 10 ms/request | Site is fully static (every page prerendered at build); if `Exceeded CPU Limit` ever shows in `wrangler tail` → Workers Paid $5/mo raises it to 30 s |
-   | Worker size | 3 MiB gzip | Server bundle only (Studio JS ships as client-side static assets); read the size `npm run deploy` prints — Paid raises to 10 MiB if ever needed |
+   | Worker size | 3 MiB gzip | Server bundle only (the Studio is standalone at `compengsoc.sanity.studio`, out of the app entirely); read the size `npm run deploy` prints — Paid raises to 10 MiB if ever needed |
    | GitHub Actions | free (public repo unmetered; 2 000 min/mo private) | ~3–5 min per deploy; daily cron + a few publishes/week sits far inside |
    | Sanity free plan | 3 seats, generous API/CDN quota | published reads go through Sanity's CDN; builds query a handful of times per day |
 

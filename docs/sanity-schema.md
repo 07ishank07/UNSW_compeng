@@ -2,7 +2,7 @@
 
 # §3 — HEADLESS SANITY CONFIGURATION & SCHEMA
 
-The CMS is embedded in the Next app (single repo, single deploy). Schemas are TypeScript and live under `src/sanity/`. Editors work at `/studio`. Everything below is production-ready — no placeholders.
+The Studio is deployed **standalone** at `https://compengsoc.sanity.studio` (built from this repo's `sanity.config.ts` via `npx sanity deploy`; the embedded `/studio` route was removed 2026-07 to keep the Worker under 3 MiB gzip). Schemas are TypeScript and live under `src/sanity/`. Editors work at `https://compengsoc.sanity.studio`. Everything below is production-ready — no placeholders.
 
 ## 3.1 Environment & client
 
@@ -51,7 +51,7 @@ export const client = createClient({
   apiVersion,
   useCdn: true,
   perspective: "published",
-  stega: { studioUrl: "/studio" }, // enables click-to-edit overlays in preview; harmless in prod
+  stega: { studioUrl: "https://compengsoc.sanity.studio" }, // click-to-edit target if preview is ever enabled; harmless in prod
 });
 ```
 
@@ -113,7 +113,7 @@ export default defineConfig({
   title: "CompEngSoc CMS",
   projectId,
   dataset,
-  basePath: "/studio", // Studio is served from this route inside the Next app
+  basePath: "/studio", // legacy of the embedded era; the standalone host serves the Studio at its own root
 
   plugins: [
     structureTool({ structure }), // the curated desk (see structure.ts)

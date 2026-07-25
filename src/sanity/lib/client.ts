@@ -13,5 +13,5 @@ export const client = createClient({
   apiVersion,
   useCdn: true,
   perspective: "published",
-  stega: { enabled: false, studioUrl: "/studio" },
+  stega: { enabled: false, studioUrl: "https://compengsoc.sanity.studio" },
 });

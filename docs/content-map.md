@@ -15,7 +15,8 @@
 | `/blog` | Sanity `post` | Changelog |
 | `/blog/[slug]` | Sanity `post` | Single post |
 | `/team` | Sanity `execMember` | The Board (exec roster) |
-| `/studio/[[...tool]]` | embedded Sanity Studio | Admin content portal |
+
+> Content is edited in the **standalone Sanity Studio** at `https://compengsoc.sanity.studio` — the embedded `/studio` route was removed (2026-07) to keep the Worker under Cloudflare's 3 MiB limit.
 
 ## 1.1 Home page — the visual masterpiece (spec, not loose direction)
 
@@ -38,7 +39,7 @@
 4. **Sponsors marquee** — a quiet rail of sponsor pads, top tier brightest → `/sponsors`.
 5. **Join / contact** — a closing "power connector" CTA block (Discord/socials/newsletter links from `siteSettings`).
 
-**Footer** — silkscreen-style: copyright `© CompEngSoc {year}`, socials, a discreet `/studio` link for execs, and a mono build-stamp.
+**Footer** — silkscreen-style: copyright `© CompEngSoc {year}`, socials, a discreet link to the standalone Studio (`https://compengsoc.sanity.studio`) for execs, and a mono build-stamp.
 
 ## 1.2 The "About Us" blurb — polished copy (use verbatim or lightly edited)
 

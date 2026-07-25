@@ -92,13 +92,13 @@ These define the **mandatory final state** of each subsystem. They are acceptanc
 **SUCCESS**
 - `next build` (Turbopack default) passes with **zero type errors** and zero ESLint errors; `tsc --noEmit` is clean; `npm run check:contrast` passes (palette mirror + WCAG gate).
 - `.env.local` is git-ignored; `.env.example` documents every variable; secrets are set via `wrangler secret put` and public values via `wrangler.jsonc` `vars` (see `docs/deployment.md` §5.4.2) — not a dashboard env-var UI.
-- The embedded `/studio` route builds and loads in production at `https://<domain>/studio`.
+- The standalone Studio at `https://compengsoc.sanity.studio` loads and edits the production dataset; no Studio code in the app (zero `sanity` / `next-sanity/studio` imports under `src/app/**` or `src/components/**`).
 - Lighthouse (mobile) ≥ 90 Performance / ≥ 95 Accessibility / ≥ 95 Best-Practices / ≥ 95 SEO on `/` and `/events`.
 
 **FAILURE**
 - Type errors suppressed with `// @ts-ignore` or `next.config` `ignoreBuildErrors`/`ignoreDuringBuilds` set to true.
 - A committed secret in git history.
-- A broken `/studio` route in production.
+- Studio code bundled into the Worker (the embedded `/studio` route was removed 2026-07 to keep the server bundle under 3 MiB gzip).
 
 ---
 
