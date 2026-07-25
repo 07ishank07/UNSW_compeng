@@ -42,7 +42,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check # tsc + eslint + contrast gate before anything ships
-      - run: npm run deploy # predeploy env guard → opennextjs-cloudflare build && deploy
+      # npm run deploy, split into its parts so a failure names its step in the
+      # run summary (predeploy guard → adapter build → auth probe → deploy).
+      - run: npm run predeploy
+      - run: npx opennextjs-cloudflare build
+      - run: npx wrangler whoami # auth probe — fails iff the CF secrets are missing/expired
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - run: npx opennextjs-cloudflare deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
